@@ -9,7 +9,7 @@ variable "sqs_queue_name" {
 }
 
 variable "batch_size" {
-    type    = integer
+    type    = number
     default = 1
 }
 
