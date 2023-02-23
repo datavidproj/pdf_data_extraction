@@ -1,9 +1,9 @@
 data "aws_s3_bucket" "datavid-pdfconverter" {
-    name    = "datavid-pdfconverter"
+    bucket  = "datavid-pdfconverter"
 }
 
 data "aws_ecr_image" "pdf_splitter" {
-  repository_name = var.ecr_name_pdf_splitter
+  repository_name = var.repo_name_pdf_splitter
   image_tag       = "latest"
 }
 

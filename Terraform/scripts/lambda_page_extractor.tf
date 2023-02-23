@@ -19,7 +19,7 @@ resource "aws_lambda_function" "page_extractor" {
     variables = {
       S3_BUCKET = "datavid-pdfconverter"
       BATCH_SIZE=var.batch_size
-      TARGET_KEY_PREFIX=var.opensearch_data_key_prefix
+      TARGET_KEY_PREFIX=var.target_key_prefix
       TEMP_KEY_PREFIX=var.bbox_images_key_prefix
       MASKED_KEY_PREFIX=var.masked_images_key_prefix
       TABLE_CORNERS_KEY_PREFIX=var.table_corners_key_prefix

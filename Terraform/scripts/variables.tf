@@ -8,6 +8,11 @@ variable "sqs_queue_name" {
     default = "PDFPageInfo"
 }
 
+variable "batch_size" {
+    type    = integer
+    default = 1
+}
+
 variable "repo_name_pdf_splitter" {
     type    = string
     default = "pdf_splitter"
