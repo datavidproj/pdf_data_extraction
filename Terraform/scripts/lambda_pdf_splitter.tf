@@ -45,10 +45,10 @@ resource "aws_iam_role" "pdf_splitter" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-  role       = aws_iam_role.pdf_splitter.name
-}
+#resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
+#  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+#  role       = aws_iam_role.pdf_splitter.name
+#}
 
 resource "aws_s3_bucket_notification" "pdf_splitter_s3_bucket_notification" {
   bucket = "datavid-pdfconverter"
