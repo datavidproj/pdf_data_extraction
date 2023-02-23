@@ -10,7 +10,7 @@ data "aws_sqs_queue" "datavid_pdfconverter" {
 resource "aws_lambda_function" "page_extractor" {
   function_name    = "page_extractor"
   package_type     = "Image"
-  image_uri        = data.aws_ecr_image.page_extractor.image_manifest
+  image_uri        = data.aws_ecr_image.page_extractor.id
   role             = aws_iam_role.page_extractor.arn
   memory_size      = 10240
   timeout          = 900
