@@ -3,8 +3,8 @@ data "aws_ecr_image" "page_extractor" {
   image_tag       = "latest"
 }
 
-data "aws_sqs_queues" "search" {
-  queue_name_prefix = var.sqs_queue_name
+data "aws_sqs_queue" "datavid_pdfconverter" {
+  name = var.sqs_queue_name
 }
 
 resource "aws_lambda_function" "page_extractor" {
@@ -23,7 +23,7 @@ resource "aws_lambda_function" "page_extractor" {
       TEMP_KEY_PREFIX=var.bbox_images_key_prefix
       MASKED_KEY_PREFIX=var.masked_images_key_prefix
       TABLE_CORNERS_KEY_PREFIX=var.table_corners_key_prefix
-      SQS_QUEUE_URL=data.aws_sqs_queues.search.queue_urls[0]
+      SQS_QUEUE_URL=data.aws_sqs_queue.datavid_pdfconverter.url
     }
   }
 }
