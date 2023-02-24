@@ -2,9 +2,13 @@ data "aws_s3_bucket" "datavid-pdfconverter" {
     bucket  = "datavid-pdfconverter"
 }
 
-data "aws_ecr_image" "pdf_splitter" {
-  repository_name = var.repo_name_pdf_splitter
-  image_tag       = "latest"
+#data "aws_ecr_image" "pdf_splitter" {
+#  repository_name = var.repo_name_pdf_splitter
+#  image_tag       = "latest"
+#}
+
+data "aws_ecr_repository" "page_extractor" {
+    name = var.repo_name_page_extractor
 }
 
 #data "aws_sqs_queue" "pdf_page_info" {
@@ -14,7 +18,7 @@ data "aws_ecr_image" "pdf_splitter" {
 resource "aws_lambda_function" "pdf_splitter" {
   function_name    = var.lambda_name_pdf_splitter
   package_type     = "Image"
-  image_uri        = data.aws_ecr_image.pdf_splitter.id
+  image_uri        = "${data.aws_ecr_repository.pdf_splitter.repository_url}:latest"
   role             = aws_iam_role.pdf_splitter.arn
   memory_size      = 10240
   timeout          = 900
