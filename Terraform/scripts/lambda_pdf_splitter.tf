@@ -7,8 +7,8 @@ data "aws_s3_bucket" "datavid-pdfconverter" {
 #  image_tag       = "latest"
 #}
 
-data "aws_ecr_repository" "page_extractor" {
-    name = var.repo_name_page_extractor
+data "aws_ecr_repository" "pdf_splitter" {
+    name = var.repo_name_pdf_splitter
 }
 
 #data "aws_sqs_queue" "pdf_page_info" {
