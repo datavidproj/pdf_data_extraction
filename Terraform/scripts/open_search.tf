@@ -1,6 +1,7 @@
 resource "aws_opensearch_domain" "opensearch_domain" {
   domain_name           = "opensearch-domain"
-  elasticsearch_version = "7.10"
+#  elasticsearch_version = "7.10"
+  engine_version = "Elasticsearch_7.10"
 
   ebs_options {
     ebs_enabled = true

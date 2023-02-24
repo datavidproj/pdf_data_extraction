@@ -14,7 +14,7 @@ data "aws_sqs_queue" "pdf_page_info" {
 resource "aws_lambda_function" "pdf_splitter" {
   function_name    = var.lambda_name_pdf_splitter
   package_type     = "Image"
-  image_uri        = data.aws_ecr_image.pdf_splitter.image_manifest
+  image_uri        = data.aws_ecr_image.pdf_splitter.id
   role             = aws_iam_role.pdf_splitter.arn
   memory_size      = 10240
   timeout          = 900
@@ -45,10 +45,10 @@ resource "aws_iam_role" "pdf_splitter" {
   })
 }
 
-#resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
-#  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-#  role       = aws_iam_role.pdf_splitter.name
-#}
+resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  role       = aws_iam_role.pdf_splitter.name
+}
 
 resource "aws_s3_bucket_notification" "pdf_splitter_s3_bucket_notification" {
   bucket = "datavid-pdfconverter"
@@ -79,27 +79,27 @@ resource "aws_sqs_queue_policy" "pdf_splitter_sqs_queue_policy" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-  role       = aws_iam_role.pdf_splitter.name
-
-  policy {
-    policy_json = jsonencode({
-      Version = "2012-10-17"
-      Statement = [
-        {
-          Effect = "Allow"
-          Action = [
-            "s3:GetObject",
-            "s3:PutObject"
-          ]
-          Resource = [
-            concat("${aws_s3_bucket.datavid-pdfconverter.arn}", "/", var.target_pdf_key_prefix, "/*"),
-            concat("${aws_s3_bucket.datavid-pdfconverter.arn}", "/", var.target_ing_key_prefix, "/*")
-          ]
-        }
-      ]
-    })
-  }
-}
+#resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
+#  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+#  role       = aws_iam_role.pdf_splitter.name
+#
+#  policy {
+#    policy_json = jsonencode({
+#      Version = "2012-10-17"
+#      Statement = [
+#        {
+#          Effect = "Allow"
+#          Action = [
+#            "s3:GetObject",
+#            "s3:PutObject"
+#          ]
+#          Resource = [
+#            concat("${aws_s3_bucket.datavid-pdfconverter.arn}", "/", var.target_pdf_key_prefix, "/*"),
+#            concat("${aws_s3_bucket.datavid-pdfconverter.arn}", "/", var.target_ing_key_prefix, "/*")
+#          ]
+#        }
+#      ]
+#    })
+#  }
+#}
 
