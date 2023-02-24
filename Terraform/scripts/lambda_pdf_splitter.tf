@@ -75,9 +75,18 @@ resource "aws_s3_bucket_notification" "pdf_splitter_s3_bucket_notification" {
   }
 }
 
+resource "null_resource" "delay_creation" {
+  provisioner "local-exec" {
+    command = "sleep 60"
+  }
+
+  depends_on   = [aws_lambda_function.pdf_splitter, aws_sqs_queue.pdf_page_info]
+}
+
 resource "aws_sqs_queue_policy" "pdf_splitter_sqs_queue_policy" {
   queue_url = aws_sqs_queue.pdf_page_info.url
-  depends_on   = [aws_lambda_function.pdf_splitter, aws_sqs_queue.pdf_page_info]
+#  depends_on   = [aws_lambda_function.pdf_splitter, aws_sqs_queue.pdf_page_info]
+  depends_on   = [null_resource.delay_creation]
 
   policy = jsonencode({
     Version = "2012-10-17",
