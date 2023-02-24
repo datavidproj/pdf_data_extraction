@@ -46,29 +46,29 @@ resource "aws_opensearch_domain" "opensearch_domain" {
   })
 }
 
-resource "aws_opensearch_domain" "opensearch_domain" {
-  domain_name = "my-opensearch-domain"
-  ...
-  access_policies = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Deny",
-        Principal = "*",
-        Action = "*",
-        Resource = "*"
-      },
-      {
-        Effect = "Allow",
-        Principal = {
-          AWS = "arn:aws:iam::123456789012:user/myuser"
-        },
-        Action = "es:*",
-        Resource = "arn:aws:es:us-east-1:123456789012:domain/my-opensearch-domain/*"
-      }
-    ]
-  })
-}
+#resource "aws_opensearch_domain" "opensearch_domain" {
+#  domain_name = "my-opensearch-domain"
+#  ...
+#  access_policies = jsonencode({
+#    Version = "2012-10-17",
+#    Statement = [
+#      {
+#        Effect = "Deny",
+#        Principal = "*",
+#        Action = "*",
+#        Resource = "*"
+#      },
+#      {
+#        Effect = "Allow",
+#        Principal = {
+#          AWS = "arn:aws:iam::123456789012:user/myuser"
+#        },
+#        Action = "es:*",
+#        Resource = "arn:aws:es:us-east-1:123456789012:domain/my-opensearch-domain/*"
+#      }
+#    ]
+#  })
+#}
 
 
 resource "aws_iam_policy" "opensearch_policy" {
