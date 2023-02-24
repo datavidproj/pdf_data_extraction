@@ -1,4 +1,4 @@
-FROM 093487613626.dkr.ecr.us-east-1.amazonaws.com/tesseract_1_83_0_leptonica_5_3_0:latest
+FROM 093487613626.dkr.ecr.us-east-2.amazonaws.com/tesseract_1_83_0_leptonica_5_3_0:latest
 
 # Copy function code to container
 COPY ExtractTables.py ./
