@@ -75,33 +75,48 @@ resource "aws_s3_bucket_notification" "pdf_splitter_s3_bucket_notification" {
   }
 }
 
-resource "null_resource" "delay_creation" {
-  provisioner "local-exec" {
-    command = "sleep 60"
-  }
-
-  depends_on   = [aws_lambda_function.pdf_splitter, aws_sqs_queue.pdf_page_info]
-}
+#resource "null_resource" "delay_creation" {
+#  provisioner "local-exec" {
+#    command = "sleep 60"
+#  }
+#
+#  depends_on   = [aws_lambda_function.pdf_splitter, aws_sqs_queue.pdf_page_info]
+#}
 
 resource "aws_sqs_queue_policy" "pdf_splitter_sqs_queue_policy" {
   queue_url = aws_sqs_queue.pdf_page_info.url
-#  depends_on   = [aws_lambda_function.pdf_splitter, aws_sqs_queue.pdf_page_info]
-  depends_on   = [null_resource.delay_creation]
+  depends_on   = [aws_lambda_function.pdf_splitter, aws_sqs_queue.pdf_page_info]
 
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Sid = "AllowLambdaToWriteToQueue",
-        Effect = "Allow",
-        Principal = {
-          AWS = aws_lambda_function.pdf_splitter.arn
-        },
-        Action = "sqs:SendMessage",
-        Resource = aws_sqs_queue.pdf_page_info.arn
-      }
-    ]
-  })
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowLambdaToWriteToQueue",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "${aws_lambda_function.pdf_splitter.arn}"
+      },
+      "Action": "sqs:SendMessage",
+      "Resource": "${aws_sqs_queue.pdf_page_info.arn}"
+    }
+  ]
+}
+POLICY
+#  policy = jsonencode({
+#    Version = "2012-10-17",
+#    Statement = [
+#      {
+#        Sid = "AllowLambdaToWriteToQueue",
+#        Effect = "Allow",
+#        Principal = {
+#          AWS = aws_lambda_function.pdf_splitter.arn
+#        },
+#        Action = "sqs:SendMessage",
+#        Resource = aws_sqs_queue.pdf_page_info.arn
+#      }
+#    ]
+#  })
 }
 
 #resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
