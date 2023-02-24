@@ -32,27 +32,84 @@ resource "aws_lambda_function" "pdf_splitter" {
   }
 }
 
+data "aws_iam_policy" "lambda_basic_execution_role_policy" {
+  name = "AWSLambdaBasicExecutionRole"
+}
+
 resource "aws_iam_role" "pdf_splitter" {
-  name = "pdf_splitter_lambda_role"
+  name_prefix         = "LambdaSQSRole-"
+  managed_policy_arns = [
+    data.aws_iam_policy.lambda_basic_execution_role_policy.arn,
+    aws_iam_policy.lambda_policy.arn
+  ]
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        }
-      }
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+#resource "aws_iam_role" "pdf_splitter" {
+#  name = "pdf_splitter_lambda_role"
+#
+#  assume_role_policy = jsonencode({
+#    Version = "2012-10-17"
+#    Statement = [
+#      {
+#        Action = "sts:AssumeRole"
+#        Effect = "Allow"
+#        Principal = {
+#          Service = "lambda.amazonaws.com"
+#        }
+#      }
+#    ]
+#  })
+#}
+
+data "aws_iam_policy_document" "lambda_policy_document" {
+  statement {
+
+    effect = "Allow"
+
+    actions = [
+      "sqs:SendMessage*"
     ]
-  })
+
+    resources = [
+      aws_sqs_queue.sqs_queue.arn
+    ]
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_lambda_function.pdf_splitter.arn]
+    }
+  }
 }
 
-resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-  role       = aws_iam_role.pdf_splitter.name
+resource "aws_iam_policy" "lambda_policy" {
+  name_prefix = "lambda_policy"
+  path        = "/"
+  policy      = data.aws_iam_policy_document.lambda_policy_document.json
+#  lifecycle {
+#    create_before_destroy = true
+#  }
 }
+
+#resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
+#  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+#  role       = aws_iam_role.pdf_splitter.name
+#}
 
 resource "aws_lambda_permission" "pdf_splitter" {
   statement_id  = "AllowExecutionFromS3Bucket"
@@ -70,7 +127,7 @@ resource "aws_s3_bucket_notification" "pdf_splitter_s3_bucket_notification" {
 
   lambda_function {
     lambda_function_arn = aws_lambda_function.pdf_splitter.arn
-    events              = ["s3:ObjectCreated:*", "s3:ObjectRemoved:*"]
+    events              = ["s3:ObjectCreated:*"]
     filter_prefix       = var.source_pdf_key_prefix
   }
 }
