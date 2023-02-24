@@ -10,64 +10,64 @@ from PyPDF2 import PdfFileReader, PdfFileWriter
 s3 = boto3.client('s3')
 sqs = boto3.client('sqs')
 
-def write_pdfpages(pdf_content, src_bucket, source_key):
-    # Split PDF into individual pages and write to dest folder
-    pdf_reader = PdfFileReader(BytesIO(pdf_content))
-
-    dest_folder = os.getenv('TARGET_PDF_KEY_PREFIX')
-
-    for page in range(pdf_reader.getNumPages()):
-        pdf_writer = PdfFileWriter()
-        pdf_writer.addPage(pdf_reader.getPage(page))
-        output_file = f'/tmp/{os.path.splitext(os.path.basename(source_key))[0]}_page{page+1}.pdf'
-        with open(output_file, 'wb') as output:
-            pdf_writer.write(output)
-        output_key = f'{dest_folder}/{os.path.splitext(os.path.basename(source_key))[0]}_page{page+1}.pdf'
-        s3.upload_file(output_file, src_bucket, output_key)
-
-        # Intimate consumer about the new file that arrived
-        message = {
-            'filename': os.path.basename(output_key),
-            'bucket': src_bucket,
-            'key_prefix': os.path.dirname(output_key),
-            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        }
-
-        # Send the message to the SQS queue
-        PDF_QUEUE_URL = os.getenv('PDF_QUEUE_URL')
-        print(f'PDF_QUEUE_URL={PDF_QUEUE_URL}')
-
-        response = sqs.send_message(
-            QueueUrl= PDF_QUEUE_URL,
-            MessageBody= json.dumps(message)
-        )
-
-        # Send the message to the SQS TEXT queue
-        PDF_TEXT_QUEUE_URL = os.getenv('PDF_TEXT_QUEUE_URL')
-        print(f'PDF_TEXT_QUEUE_URL={PDF_TEXT_QUEUE_URL}')
-
-        response = sqs.send_message(
-            QueueUrl= PDF_TEXT_QUEUE_URL,
-            MessageBody= json.dumps(message)
-        )
-
-        # Send the message to the SQS TABLE queue
-        PDF_TABLE_QUEUE_URL = os.getenv('PDF_TABLE_QUEUE_URL')
-        print(f'PDF_TABLE_QUEUE_URL={PDF_TABLE_QUEUE_URL}')
-
-        response = sqs.send_message(
-            QueueUrl= PDF_TABLE_QUEUE_URL,
-            MessageBody= json.dumps(message)
-        )
-
-        # Send the message to the SQS IMG queue
-        PDF_IMG_QUEUE_URL = os.getenv('PDF_IMG_QUEUE_URL')
-        print(f'PDF_IMG_QUEUE_URL={PDF_IMG_QUEUE_URL}')
-
-        response = sqs.send_message(
-            QueueUrl= PDF_IMG_QUEUE_URL,
-            MessageBody= json.dumps(message)
-        )
+#def write_pdfpages(pdf_content, src_bucket, source_key):
+#    # Split PDF into individual pages and write to dest folder
+#    pdf_reader = PdfFileReader(BytesIO(pdf_content))
+#
+#    dest_folder = os.getenv('TARGET_PDF_KEY_PREFIX')
+#
+#    for page in range(pdf_reader.getNumPages()):
+#        pdf_writer = PdfFileWriter()
+#        pdf_writer.addPage(pdf_reader.getPage(page))
+#        output_file = f'/tmp/{os.path.splitext(os.path.basename(source_key))[0]}_page{page+1}.pdf'
+#        with open(output_file, 'wb') as output:
+#            pdf_writer.write(output)
+#        output_key = f'{dest_folder}/{os.path.splitext(os.path.basename(source_key))[0]}_page{page+1}.pdf'
+#        s3.upload_file(output_file, src_bucket, output_key)
+#
+#        # Intimate consumer about the new file that arrived
+#        message = {
+#            'filename': os.path.basename(output_key),
+#            'bucket': src_bucket,
+#            'key_prefix': os.path.dirname(output_key),
+#            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+#        }
+#
+#        # Send the message to the SQS queue
+#        PDF_QUEUE_URL = os.getenv('PDF_QUEUE_URL')
+#        print(f'PDF_QUEUE_URL={PDF_QUEUE_URL}')
+#
+#        response = sqs.send_message(
+#            QueueUrl= PDF_QUEUE_URL,
+#            MessageBody= json.dumps(message)
+#        )
+#
+#        # Send the message to the SQS TEXT queue
+#        PDF_TEXT_QUEUE_URL = os.getenv('PDF_TEXT_QUEUE_URL')
+#        print(f'PDF_TEXT_QUEUE_URL={PDF_TEXT_QUEUE_URL}')
+#
+#        response = sqs.send_message(
+#            QueueUrl= PDF_TEXT_QUEUE_URL,
+#            MessageBody= json.dumps(message)
+#        )
+#
+#        # Send the message to the SQS TABLE queue
+#        PDF_TABLE_QUEUE_URL = os.getenv('PDF_TABLE_QUEUE_URL')
+#        print(f'PDF_TABLE_QUEUE_URL={PDF_TABLE_QUEUE_URL}')
+#
+#        response = sqs.send_message(
+#            QueueUrl= PDF_TABLE_QUEUE_URL,
+#            MessageBody= json.dumps(message)
+#        )
+#
+#        # Send the message to the SQS IMG queue
+#        PDF_IMG_QUEUE_URL = os.getenv('PDF_IMG_QUEUE_URL')
+#        print(f'PDF_IMG_QUEUE_URL={PDF_IMG_QUEUE_URL}')
+#
+#        response = sqs.send_message(
+#            QueueUrl= PDF_IMG_QUEUE_URL,
+#            MessageBody= json.dumps(message)
+#        )
 
 def get_imglist(pdf_content):
     # Convert the PDF to images using fitz

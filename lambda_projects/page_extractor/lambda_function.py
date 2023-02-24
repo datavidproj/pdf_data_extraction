@@ -23,6 +23,8 @@ IMG_BLOCK_TYPE = 1
 #            images_xy.append((x0, y0, x1, y1))
 #    return images_xy
 
+BUCKET_NAME = os.environ["BUCKET_NAME"]
+
 def extract_paragraphs(block_l):
     paragraph_bbox_l = []
     for block in block_l:
@@ -117,8 +119,8 @@ def prepare_table_data(table_dim_l, image):
 #RES_RATIO = 600/72
 
 # Debugging
-def save_tempimages(image, bucket, filename, suffix):
-    table_corners_key_prefix = os.environ["TEMP_KEY_PREFIX"]
+def save_bboximages(image, bucket, filename, suffix):
+    table_corners_key_prefix = os.environ["BBOX_KEY_PREFIX"]
     base_filename = os.path.splitext(filename)[0]
     key = f"{table_corners_key_prefix}/{base_filename}_{suffix}.jpg"
     print(f'temp: key={key}')
@@ -140,7 +142,7 @@ def save_masked_image(image, bucket, filename):
     s3_client.put_object(Bucket=bucket, Key=key, Body=image_b)
 
 def prepare_document_data(page_num, image_l, paragraph_bbox_l, table_dim_l, image, bucket, filename):
-    save_tempimages(image, bucket, filename, 'table')
+    save_bboximages(image, bucket, filename, 'table')
     table_obj_l = prepare_table_data(table_dim_l, image)
     paragraph_l = prepare_paragraph_data(paragraph_bbox_l, image)
 

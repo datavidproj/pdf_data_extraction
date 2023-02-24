@@ -11,14 +11,25 @@ RUN pip install --upgrade pip && \
     pip install -r requirements.txt && \
     pip install pytesseract
 
-#ENV RES_HIGH=600
-#ENV RES_LOW=72
-#ENV BATCH_SIZE=10
-#ENV TARGET_KEY_PREFIX=project/opensearch_data
-#ENV TEMP_KEY_PREFIX=project/temp_images
-#ENV MASKED_KEY_PREFIX=project/masked_images
-#ENV TABLE_CORNERS_KEY_PREFIX=project/table_corners
-#ENV SQS_QUEUE_URL=https://sqs.us-east-1.amazonaws.com/093487613626/PDFPages
+ARG TF_VAR_target_key_prefix
+ARG TF_VAR_bbox_images_key_prefix
+ARG TF_VAR_masked_images_key_prefix
+ARG TF_VAR_table_corners_key_prefix
+ARG AWS_ACCOUNT_ID
+ARG AWS_REGION
+ARG TF_VAR_sqs_queue_name
+ARG BATCH_SIZE
+ARG RES_HIGH
+ARG RES_LOW
+
+ENV RES_HIGH=$RES_HIGH
+ENV RES_LOW=$RES_LOW
+ENV BATCH_SIZE=$BATCH_SIZE
+ENV TARGET_KEY_PREFIX=$TF_VAR_target_key_prefix
+ENV BBOX_KEY_PREFIX=$TF_VAR_bbox_images_key_prefix
+ENV MASKED_KEY_PREFIX=TF_VAR_masked_images_key_prefix
+ENV TABLE_CORNERS_KEY_PREFIX=TF_VAR_table_corners_key_prefix
+ENV SQS_QUEUE_URL=https://sqs.$AWS_REGION.amazonaws.com/$AWS_ACCOUNT_ID/$TF_VAR_sqs_queue_name
 #ENV TESSDATA_PREFIX=tessdata
 
 # setting the CMD to your handler file_name.function_name
