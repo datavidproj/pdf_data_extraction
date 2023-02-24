@@ -10,7 +10,7 @@ resource "aws_opensearch_domain" "opensearch_domain" {
   }
 
   cluster_config {
-    instance_type = "t3.small.elasticsearch"
+    instance_type = "t3.small.search"
   }
 
   access_policies = jsonencode({
