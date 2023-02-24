@@ -17,20 +17,59 @@ resource "aws_opensearch_domain" "opensearch_domain" {
     Version = "2012-10-17"
     Statement = [
       {
+        Effect = "Deny",
+        Principal = "*",
+        Action = "*",
+        Resource = "*"
+      },
+      {
         Effect = "Allow",
         Principal = {
-          AWS = "*"
+          AWS = "arn:aws:iam::${var.AWS_ACCOUNT_ID}:user/datavid"
         },
-        Action = [
-          "es:ESHttpPost",
-          "es:ESHttpPut",
-          "es:ESHttpGet"
-        ],
-        Resource = "arn:aws:es:*:*:domain/opensearch-domain/*"
+        Action = "es:*",
+        Resource = "arn:aws:es:${var.AWS_REGION}:${var.AWS_ACCOUNT_ID}:domain/datavid-opensearch-domain/*"
+      }
+#      {
+#        Effect = "Allow",
+#        Principal = {
+#          AWS = "*"
+#        },
+#        Action = [
+#          "es:ESHttpPost",
+#          "es:ESHttpPut",
+#          "es:ESHttpGet"
+#        ],
+#        Resource = "arn:aws:es:*:*:domain/opensearch-domain/*"
+#      }
+    ]
+  })
+}
+
+resource "aws_opensearch_domain" "opensearch_domain" {
+  domain_name = "my-opensearch-domain"
+  ...
+  access_policies = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Deny",
+        Principal = "*",
+        Action = "*",
+        Resource = "*"
+      },
+      {
+        Effect = "Allow",
+        Principal = {
+          AWS = "arn:aws:iam::123456789012:user/myuser"
+        },
+        Action = "es:*",
+        Resource = "arn:aws:es:us-east-1:123456789012:domain/my-opensearch-domain/*"
       }
     ]
   })
 }
+
 
 resource "aws_iam_policy" "opensearch_policy" {
   name        = "opensearch_policy"
