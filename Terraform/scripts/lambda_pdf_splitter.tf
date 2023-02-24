@@ -66,7 +66,7 @@ resource "aws_lambda_permission" "pdf_splitter" {
 resource "aws_s3_bucket_notification" "pdf_splitter_s3_bucket_notification" {
 #  bucket = "datavid-pdfconverter"
   bucket = data.aws_s3_bucket.datavid-pdfconverter.id
-  depends_on   = [aws_lambda_function.pdf_splitter, data.aws_s3_bucket.datavid-pdfconverter]
+  depends_on   = [aws_lambda_function.pdf_splitter]
 
   lambda_function {
     lambda_function_arn = aws_lambda_function.pdf_splitter.arn
@@ -77,6 +77,7 @@ resource "aws_s3_bucket_notification" "pdf_splitter_s3_bucket_notification" {
 
 resource "aws_sqs_queue_policy" "pdf_splitter_sqs_queue_policy" {
   queue_url = aws_sqs_queue.pdf_page_info.url
+  depends_on   = [aws_lambda_function.pdf_splitter, aws_sqs_queue.pdf_page_info]
 
   policy = jsonencode({
     Version = "2012-10-17",
