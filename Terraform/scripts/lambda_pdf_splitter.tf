@@ -7,9 +7,9 @@ data "aws_ecr_image" "pdf_splitter" {
   image_tag       = "latest"
 }
 
-data "aws_sqs_queue" "pdf_page_info" {
-  name = var.sqs_queue_name
-}
+#data "aws_sqs_queue" "pdf_page_info" {
+#  name = var.sqs_queue_name
+#}
 
 resource "aws_lambda_function" "pdf_splitter" {
   function_name    = var.lambda_name_pdf_splitter
@@ -22,7 +22,7 @@ resource "aws_lambda_function" "pdf_splitter" {
   environment {
     variables = {
       S3_BUCKET = "datavid-pdfconverter"
-      SQS_QUEUE_URL = data.aws_sqs_queue.pdf_page_info.url
+      SQS_QUEUE_URL = aws_sqs_queue.pdf_page_info.url
       TARGET_IMG_KEY_PREFIX=var.target_img_key_prefix
     }
   }
@@ -61,7 +61,7 @@ resource "aws_s3_bucket_notification" "pdf_splitter_s3_bucket_notification" {
 }
 
 resource "aws_sqs_queue_policy" "pdf_splitter_sqs_queue_policy" {
-  queue_url = data.aws_sqs_queue.pdf_page_info.url
+  queue_url = aws_sqs_queue.pdf_page_info.url
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -73,7 +73,7 @@ resource "aws_sqs_queue_policy" "pdf_splitter_sqs_queue_policy" {
           AWS = aws_lambda_function.pdf_splitter.arn
         },
         Action = "sqs:SendMessage",
-        Resource = data.aws_sqs_queue.pdf_page_info.arn
+        Resource = aws_sqs_queue.pdf_page_info.arn
       }
     ]
   })

@@ -23,7 +23,7 @@ resource "aws_lambda_function" "page_extractor" {
       TEMP_KEY_PREFIX=var.bbox_images_key_prefix
       MASKED_KEY_PREFIX=var.masked_images_key_prefix
       TABLE_CORNERS_KEY_PREFIX=var.table_corners_key_prefix
-      SQS_QUEUE_URL=data.aws_sqs_queue.pdf_page_info.url
+      SQS_QUEUE_URL=aws_sqs_queue.pdf_page_info.url
     }
   }
 }
