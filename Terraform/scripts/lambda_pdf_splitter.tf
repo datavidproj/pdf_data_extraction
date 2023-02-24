@@ -87,7 +87,7 @@ data "aws_iam_policy_document" "lambda_policy_document" {
     ]
 
     resources = [
-      aws_sqs_queue.sqs_queue.arn
+      aws_sqs_queue.pdf_page_info.arn
     ]
 #    condition {
 #      test     = "ArnEquals"
