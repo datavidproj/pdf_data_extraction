@@ -7,7 +7,6 @@ resource "aws_lambda_event_source_mapping" "page_extractor_sqs_mapping" {
   function_name     = aws_lambda_function.page_extractor.arn
   batch_size        = var.batch_size
   enabled           = true
-#  starting_position = "LATEST"
 }
 
 #data "aws_iam_policy_document" "sqs_queue_policy" {
@@ -23,3 +22,4 @@ resource "aws_lambda_event_source_mapping" "page_extractor_sqs_mapping" {
 #    }
 #  }
 #}
+#  starting_position = "LATEST"
