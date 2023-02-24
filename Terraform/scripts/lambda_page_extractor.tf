@@ -1,6 +1,9 @@
-data "aws_ecr_image" "page_extractor" {
-  repository_name = var.repo_name_page_extractor
-  image_tag       = "latest"
+#data "aws_ecr_image" "page_extractor" {
+#  repository_name = var.repo_name_page_extractor
+#  image_tag       = "latest"
+#}
+data "aws_ecr_repository" "page_extractor" {
+    name = var.repo_name_page_extractor
 }
 
 #data "aws_sqs_queue" "pdf_page_info" {
@@ -10,7 +13,8 @@ data "aws_ecr_image" "page_extractor" {
 resource "aws_lambda_function" "page_extractor" {
   function_name    = "page_extractor"
   package_type     = "Image"
-  image_uri        = data.aws_ecr_image.page_extractor.id
+#  image_uri        = data.aws_ecr_image.page_extractor.id
+  image_uri        = "${data.aws_ecr_repository.page_extractor.repository_url}::latest"
   role             = aws_iam_role.page_extractor.arn
   memory_size      = 10240
   timeout          = 900
