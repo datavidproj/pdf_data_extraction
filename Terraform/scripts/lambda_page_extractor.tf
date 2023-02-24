@@ -3,9 +3,9 @@ data "aws_ecr_image" "page_extractor" {
   image_tag       = "latest"
 }
 
-data "aws_sqs_queue" "pdf_page_info" {
-  name = var.sqs_queue_name
-}
+#data "aws_sqs_queue" "pdf_page_info" {
+#  name = var.sqs_queue_name
+#}
 
 resource "aws_lambda_function" "page_extractor" {
   function_name    = "page_extractor"
