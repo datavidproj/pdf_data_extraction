@@ -89,11 +89,11 @@ data "aws_iam_policy_document" "lambda_policy_document" {
     resources = [
       aws_sqs_queue.sqs_queue.arn
     ]
-    condition {
-      test     = "ArnEquals"
-      variable = "aws:SourceArn"
-      values   = [aws_lambda_function.pdf_splitter.arn]
-    }
+#    condition {
+#      test     = "ArnEquals"
+#      variable = "aws:SourceArn"
+#      values   = [aws_lambda_function.pdf_splitter.arn]
+#    }
   }
 }
 
