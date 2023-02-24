@@ -59,14 +59,14 @@ resource "aws_lambda_permission" "pdf_splitter" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.pdf_splitter.function_name
   principal     = "s3.amazonaws.com"
-  source_arn    = aws_s3_bucket.datavid-pdfconverter.arn
+  source_arn    = data.data.aws_s3_bucket.datavid-pdfconverter.arn
 }
 
 
 resource "aws_s3_bucket_notification" "pdf_splitter_s3_bucket_notification" {
 #  bucket = "datavid-pdfconverter"
   bucket = data.aws_s3_bucket.datavid-pdfconverter.id
-  depends_on   = [aws_lambda_function.pdf_splitter.id, aws_s3_bucket.datavid-pdfconverter.id]
+  depends_on   = [aws_lambda_function.pdf_splitter.id, data.aws_s3_bucket.datavid-pdfconverter.id]
 
   lambda_function {
     lambda_function_arn = aws_lambda_function.pdf_splitter.arn
@@ -109,8 +109,8 @@ resource "aws_sqs_queue_policy" "pdf_splitter_sqs_queue_policy" {
 #            "s3:PutObject"
 #          ]
 #          Resource = [
-#            concat("${aws_s3_bucket.datavid-pdfconverter.arn}", "/", var.target_pdf_key_prefix, "/*"),
-#            concat("${aws_s3_bucket.datavid-pdfconverter.arn}", "/", var.target_ing_key_prefix, "/*")
+#            concat("${data.aws_s3_bucket.datavid-pdfconverter.arn}", "/", var.target_pdf_key_prefix, "/*"),
+#            concat("${data.aws_s3_bucket.datavid-pdfconverter.arn}", "/", var.target_ing_key_prefix, "/*")
 #          ]
 #        }
 #      ]
