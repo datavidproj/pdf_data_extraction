@@ -59,7 +59,7 @@ resource "aws_lambda_permission" "pdf_splitter" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.pdf_splitter.function_name
   principal     = "s3.amazonaws.com"
-  source_arn    = data.data.aws_s3_bucket.datavid-pdfconverter.arn
+  source_arn    = data.aws_s3_bucket.datavid-pdfconverter.arn
 }
 
 
