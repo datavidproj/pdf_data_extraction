@@ -25,7 +25,7 @@ resource "aws_lambda_function" "pdf_splitter" {
 
   environment {
     variables = {
-      S3_BUCKET = "datavid-pdfconverter"
+      S3_BUCKET = data.aws_s3_bucket.datavid-pdfconverter.id
       SQS_QUEUE_URL = aws_sqs_queue.pdf_page_info.url
       TARGET_IMG_KEY_PREFIX=var.target_img_key_prefix
     }
@@ -55,7 +55,8 @@ resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
 }
 
 resource "aws_s3_bucket_notification" "pdf_splitter_s3_bucket_notification" {
-  bucket = "datavid-pdfconverter"
+#  bucket = "datavid-pdfconverter"
+  bucket = data.aws_s3_bucket.datavid-pdfconverter.id
 
   lambda_function {
     lambda_function_arn = aws_lambda_function.pdf_splitter.arn
