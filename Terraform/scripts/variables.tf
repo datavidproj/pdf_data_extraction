@@ -13,6 +13,16 @@ variable "batch_size" {
     default = 1
 }
 
+variable "lambda_name_pdf_splitter" {
+    type    = string
+    default = "pdf_splitter"
+}
+
+variable "lambda_name_page_extractor" {
+    type    = string
+    default = "page_extractor"
+}
+
 variable "repo_name_pdf_splitter" {
     type    = string
     default = "pdf_splitter"
