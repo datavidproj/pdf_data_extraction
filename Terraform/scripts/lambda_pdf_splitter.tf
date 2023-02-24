@@ -54,13 +54,23 @@ resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
   role       = aws_iam_role.pdf_splitter.name
 }
 
+resource "aws_lambda_permission" "pdf_splitter" {
+  statement_id  = "AllowExecutionFromS3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.pdf_splitter.function_name
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.datavid-pdfconverter.arn
+}
+
+
 resource "aws_s3_bucket_notification" "pdf_splitter_s3_bucket_notification" {
 #  bucket = "datavid-pdfconverter"
   bucket = data.aws_s3_bucket.datavid-pdfconverter.id
+  depends_on   = ["${aws_lambda_function.pdf_splitter.id}", "${aws_s3_bucket.datavid-pdfconverter.id}"]
 
   lambda_function {
     lambda_function_arn = aws_lambda_function.pdf_splitter.arn
-    events              = ["s3:ObjectCreated:*"]
+    events              = ["s3:ObjectCreated:*", "s3:ObjectRemoved:*"]
     filter_prefix       = var.source_pdf_key_prefix
   }
 }
