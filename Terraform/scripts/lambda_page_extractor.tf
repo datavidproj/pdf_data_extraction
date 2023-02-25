@@ -89,3 +89,33 @@ resource "aws_iam_role_policy_attachment" "page_extractor_policy_attachment" {
   role       = aws_iam_role.page_extractor.name
 }
 
+data "aws_iam_policy_document" "lambda_sqs_policy" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes"
+    ]
+    resources = [
+      aws_sqs_queue.example_queue.arn
+    ]
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_sqs_attachment" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  role       = aws_iam_role.lambda_role.name
+}
+
+resource "aws_iam_policy" "lambda_sqs_policy" {
+  name        = "lambda-sqs-policy"
+  policy      = data.aws_iam_policy_document.lambda_sqs_policy.json
+  description = "Policy for allowing Lambda to receive messages from SQS"
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_sqs_policy_attachment" {
+  policy_arn = aws_iam_policy.lambda_sqs_policy.arn
+  role       = aws_iam_role.lambda_role.name
+}
+
