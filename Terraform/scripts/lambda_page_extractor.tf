@@ -69,6 +69,9 @@ assume_role_policy = jsonencode({
           "sqs:GetQueueAttributes",
         ],
         Effect   = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
       },
       {
         Action = "sts:AssumeRole"
