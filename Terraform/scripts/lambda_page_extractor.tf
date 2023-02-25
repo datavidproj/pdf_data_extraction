@@ -39,6 +39,16 @@ resource "aws_iam_role" "page_extractor" {
     Version = "2012-10-17"
     Statement = [
       {
+        Action = [
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes",
+        ],
+        Effect   = "Allow",
+        Resource = 
+"arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:${aws_sqs_queue.pdf_page_info.id}"
+      },
+      {
         Action = "sts:AssumeRole"
         Effect = "Allow"
         Principal = {
