@@ -32,10 +32,34 @@ resource "aws_lambda_function" "page_extractor" {
   }
 }
 
+#data "aws_caller_identity" "current" {}
+
 resource "aws_iam_role" "page_extractor" {
   name = "page_extractor_lambda_role"
 
-  assume_role_policy = jsonencode({
+#  assume_role_policy = jsonencode({
+#    Version = "2012-10-17"
+#    Statement = [
+#      {
+#        Action = [
+#          "sqs:ReceiveMessage",
+#          "sqs:DeleteMessage",
+#          "sqs:GetQueueAttributes",
+#        ],
+#        Effect   = "Allow",
+##        Resource = "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:${aws_sqs_queue.pdf_page_info.id}"
+#        Resource = "arn:aws:sqs:${var.AWS_REGION}:${var.AWS_ACCOUNT_ID}:${aws_sqs_queue.pdf_page_info.id}"
+#      },
+#      {
+#        Action = "sts:AssumeRole"
+#        Effect = "Allow"
+#        Principal = {
+#          Service = "lambda.amazonaws.com"
+#        }
+#      }
+#    ]
+#  })
+assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
@@ -45,8 +69,6 @@ resource "aws_iam_role" "page_extractor" {
           "sqs:GetQueueAttributes",
         ],
         Effect   = "Allow",
-        Resource = 
-"arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:${aws_sqs_queue.pdf_page_info.id}"
       },
       {
         Action = "sts:AssumeRole"
