@@ -1,14 +1,6 @@
-#data "aws_ecr_image" "page_extractor" {
-#  repository_name = var.repo_name_page_extractor
-#  image_tag       = "latest"
-#}
 data "aws_ecr_repository" "page_extractor" {
     name = var.repo_name_page_extractor
 }
-
-#data "aws_sqs_queue" "pdf_page_info" {
-#  name = var.sqs_queue_name
-#}
 
 resource "aws_lambda_function" "page_extractor" {
   function_name    = "page_extractor"
@@ -16,6 +8,7 @@ resource "aws_lambda_function" "page_extractor" {
 #  image_uri        = data.aws_ecr_image.page_extractor.id
   image_uri        = "${data.aws_ecr_repository.page_extractor.repository_url}:latest"
   role             = aws_iam_role.page_extractor.arn
+#  role             = "${aws_iam_role.iam_for_lambda.arn}"
   memory_size      = 10240
   timeout          = 900
 
@@ -32,61 +25,24 @@ resource "aws_lambda_function" "page_extractor" {
   }
 }
 
-#data "aws_caller_identity" "current" {}
-
 resource "aws_iam_role" "page_extractor" {
-  name = "page_extractor_lambda_role"
+  name = "iam_for_page_extractor"
 
-#  assume_role_policy = jsonencode({
-#    Version = "2012-10-17"
-#    Statement = [
-#      {
-#        Action = [
-#          "sqs:ReceiveMessage",
-#          "sqs:DeleteMessage",
-#          "sqs:GetQueueAttributes",
-#        ],
-#        Effect   = "Allow",
-##        Resource = "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:${aws_sqs_queue.pdf_page_info.id}"
-#        Resource = "arn:aws:sqs:${var.AWS_REGION}:${var.AWS_ACCOUNT_ID}:${aws_sqs_queue.pdf_page_info.id}"
-#      },
-#      {
-#        Action = "sts:AssumeRole"
-#        Effect = "Allow"
-#        Principal = {
-#          Service = "lambda.amazonaws.com"
-#        }
-#      }
-#    ]
-#  })
-assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "sqs:ReceiveMessage",
-          "sqs:DeleteMessage",
-          "sqs:GetQueueAttributes",
-        ],
-        Effect   = "Allow",
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        },
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
       },
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        }
-      }
-    ]
-  })
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
 }
-
-resource "aws_iam_role_policy_attachment" "page_extractor_policy_attachment" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-  role       = aws_iam_role.page_extractor.name
+EOF
 }
 
 data "aws_iam_policy_document" "lambda_sqs_policy" {
@@ -98,14 +54,14 @@ data "aws_iam_policy_document" "lambda_sqs_policy" {
       "sqs:GetQueueAttributes"
     ]
     resources = [
-      aws_sqs_queue.example_queue.arn
+      aws_sqs_queue.pdf_page_info.arn
     ]
   }
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_sqs_attachment" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-  role       = aws_iam_role.lambda_role.name
+  role       = aws_iam_role.page_extractor.name
 }
 
 resource "aws_iam_policy" "lambda_sqs_policy" {
@@ -116,6 +72,6 @@ resource "aws_iam_policy" "lambda_sqs_policy" {
 
 resource "aws_iam_role_policy_attachment" "lambda_sqs_policy_attachment" {
   policy_arn = aws_iam_policy.lambda_sqs_policy.arn
-  role       = aws_iam_role.lambda_role.name
+  role       = aws_iam_role.page_extractor.name
 }
 
