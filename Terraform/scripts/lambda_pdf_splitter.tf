@@ -1,5 +1,5 @@
 data "aws_s3_bucket" "datavid-pdfconverter" {
-    bucket  = "datavid-pdfconverter"
+  bucket = "datavid-pdfconverter"
 }
 
 #data "aws_ecr_image" "pdf_splitter" {
@@ -8,7 +8,7 @@ data "aws_s3_bucket" "datavid-pdfconverter" {
 #}
 
 data "aws_ecr_repository" "pdf_splitter" {
-    name = var.repo_name_pdf_splitter
+  name = var.repo_name_pdf_splitter
 }
 
 #data "aws_sqs_queue" "pdf_page_info" {
@@ -16,18 +16,18 @@ data "aws_ecr_repository" "pdf_splitter" {
 #}
 
 resource "aws_lambda_function" "pdf_splitter" {
-  function_name    = var.lambda_name_pdf_splitter
-  package_type     = "Image"
-  image_uri        = "${data.aws_ecr_repository.pdf_splitter.repository_url}:latest"
-  role             = aws_iam_role.pdf_splitter.arn
-  memory_size      = 10240
-  timeout          = 900
+  function_name = var.lambda_name_pdf_splitter
+  package_type  = "Image"
+  image_uri     = "${data.aws_ecr_repository.pdf_splitter.repository_url}:latest"
+  role          = aws_iam_role.pdf_splitter.arn
+  memory_size   = 10240
+  timeout       = 900
 
   environment {
     variables = {
-      S3_BUCKET = data.aws_s3_bucket.datavid-pdfconverter.id
-      SQS_QUEUE_URL = aws_sqs_queue.pdf_page_info.url
-      TARGET_IMG_KEY_PREFIX=var.target_img_key_prefix
+      S3_BUCKET             = data.aws_s3_bucket.datavid-pdfconverter.id
+      SQS_QUEUE_URL         = aws_sqs_queue.pdf_page_info.url
+      TARGET_IMG_KEY_PREFIX = var.target_img_key_prefix
     }
   }
 }
@@ -37,7 +37,7 @@ data "aws_iam_policy" "lambda_basic_execution_role_policy" {
 }
 
 resource "aws_iam_role" "pdf_splitter" {
-  name_prefix         = "LambdaSQSRole-"
+  name_prefix = "LambdaSQSRole-"
   managed_policy_arns = [
     data.aws_iam_policy.lambda_basic_execution_role_policy.arn,
     aws_iam_policy.lambda_policy.arn
@@ -89,11 +89,11 @@ data "aws_iam_policy_document" "lambda_policy_document" {
     resources = [
       aws_sqs_queue.pdf_page_info.arn
     ]
-#    condition {
-#      test     = "ArnEquals"
-#      variable = "aws:SourceArn"
-#      values   = [aws_lambda_function.pdf_splitter.arn]
-#    }
+    #    condition {
+    #      test     = "ArnEquals"
+    #      variable = "aws:SourceArn"
+    #      values   = [aws_lambda_function.pdf_splitter.arn]
+    #    }
   }
 }
 
@@ -101,9 +101,9 @@ resource "aws_iam_policy" "lambda_policy" {
   name_prefix = "lambda_policy"
   path        = "/"
   policy      = data.aws_iam_policy_document.lambda_policy_document.json
-#  lifecycle {
-#    create_before_destroy = true
-#  }
+  #  lifecycle {
+  #    create_before_destroy = true
+  #  }
 }
 
 #resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
@@ -121,9 +121,9 @@ resource "aws_lambda_permission" "pdf_splitter" {
 
 
 resource "aws_s3_bucket_notification" "pdf_splitter_s3_bucket_notification" {
-#  bucket = "datavid-pdfconverter"
-  bucket = data.aws_s3_bucket.datavid-pdfconverter.id
-  depends_on   = [aws_lambda_function.pdf_splitter]
+  #  bucket = "datavid-pdfconverter"
+  bucket     = data.aws_s3_bucket.datavid-pdfconverter.id
+  depends_on = [aws_lambda_function.pdf_splitter]
 
   lambda_function {
     lambda_function_arn = aws_lambda_function.pdf_splitter.arn
