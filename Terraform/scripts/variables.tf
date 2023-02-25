@@ -62,3 +62,13 @@ variable "table_corners_key_prefix" {
     type    = string
     default = "project/data/table_corners"
 }
+
+variable "AWS_REGION" {
+    type    = string
+    default = "us-east-2"
+}
+
+variable "AWS_ACCOUNT_ID" {
+    type    = string
+    default = "093487613626"
+}
