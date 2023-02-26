@@ -36,10 +36,15 @@ data "aws_iam_policy" "lambda_basic_execution_role_policy" {
   name = "AWSLambdaBasicExecutionRole"
 }
 
-resource "aws_iam_role" "pdf_splitter_sqs" {
+data "aws_iam_policy" "lambda_s3_full_access_role_policy" {
+  name = "AmazonS3FullAccess"
+}
+
+resource "aws_iam_role" "pdf_splitter" {
   name_prefix = "LambdaPDFSplitterRole-"
   managed_policy_arns = [
     data.aws_iam_policy.lambda_basic_execution_role_policy.arn,
+    data.aws_iam_policy.lambda_s3_full_access_role_policy.arn,
     aws_iam_policy.lambda_policy.arn
   ]
 
@@ -89,15 +94,15 @@ resource "aws_iam_policy" "lambda_policy" {
   #  }
 }
 
-resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-  role       = aws_iam_role.pdf_splitter.name
-}
-
-resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-  role       = aws_iam_role.pdf_splitter.name
-}
+#resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
+#  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+#  role       = aws_iam_role.pdf_splitter.name
+#}
+#
+#resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
+#  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+#  role       = aws_iam_role.pdf_splitter.name
+#}
 
 resource "aws_lambda_permission" "pdf_splitter" {
   statement_id  = "AllowExecutionFromS3Bucket"
