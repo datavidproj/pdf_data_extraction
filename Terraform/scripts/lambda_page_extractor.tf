@@ -36,12 +36,16 @@ resource "aws_lambda_function" "page_extractor" {
 #data "aws_iam_policy" "lambda_s3_full_access_role_policy" {
 #  name = "AmazonS3FullAccess"
 #}
+data "aws_iam_policy" "lambda_sqs_full_access_role_policy" {
+  name = "AmazonSQSFullAccess"
+}
 
 resource "aws_iam_role" "page_extractor" {
   name_prefix = "LambdaPageExtractorRole-"
   managed_policy_arns = [
     data.aws_iam_policy.lambda_basic_execution_role_policy.arn,
-    data.aws_iam_policy.lambda_s3_full_access_role_policy.arn
+    data.aws_iam_policy.lambda_s3_full_access_role_policy.arn,
+    data.aws_iam_policy.lambda_sqs_full_access_role_policy.arn
 #    aws_iam_policy.lambda_policy.arn
   ]
 
@@ -155,33 +159,33 @@ resource "aws_iam_role_policy_attachment" "lambda_eni_attachment" {
   role       = aws_iam_role.page_extractor.name
 }
 
-data "aws_iam_policy_document" "lambda_sqs_policy" {
-  statement {
-    effect = "Allow"
-    actions = [
-      "sqs:ReceiveMessage",
-      "sqs:DeleteMessage",
-      "sqs:GetQueueAttributes"
-    ]
-    resources = [
-      aws_sqs_queue.pdf_page_info.arn
-    ]
-  }
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_sqs_attachment" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-  role       = aws_iam_role.page_extractor.name
-}
-
-resource "aws_iam_policy" "lambda_sqs_policy" {
-  name        = "lambda-sqs-policy"
-  policy      = data.aws_iam_policy_document.lambda_sqs_policy.json
-  description = "Policy for allowing Lambda to receive messages from SQS"
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_sqs_policy_attachment" {
-  policy_arn = aws_iam_policy.lambda_sqs_policy.arn
-  role       = aws_iam_role.page_extractor.name
-}
+#data "aws_iam_policy_document" "lambda_sqs_policy" {
+#  statement {
+#    effect = "Allow"
+#    actions = [
+#      "sqs:ReceiveMessage",
+#      "sqs:DeleteMessage",
+#      "sqs:GetQueueAttributes"
+#    ]
+#    resources = [
+#      aws_sqs_queue.pdf_page_info.arn
+#    ]
+#  }
+#}
+#
+#resource "aws_iam_role_policy_attachment" "lambda_sqs_attachment" {
+#  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+#  role       = aws_iam_role.page_extractor.name
+#}
+#
+#resource "aws_iam_policy" "lambda_sqs_policy" {
+#  name        = "lambda-sqs-policy"
+#  policy      = data.aws_iam_policy_document.lambda_sqs_policy.json
+#  description = "Policy for allowing Lambda to receive messages from SQS"
+#}
+#
+#resource "aws_iam_role_policy_attachment" "lambda_sqs_policy_attachment" {
+#  policy_arn = aws_iam_policy.lambda_sqs_policy.arn
+#  role       = aws_iam_role.page_extractor.name
+#}
 
