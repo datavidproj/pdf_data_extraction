@@ -22,8 +22,9 @@ resource "random_id" "sg_suffix" {
 
 # TODO: this should be in docdb.tf
 resource "aws_security_group" "docdb_sg" {
-  name_prefix = "docdb_sg_"
-  name_suffix = random_id.sg_suffix.hex
+#  name_prefix = "docdb_sg_"
+#  name_suffix = random_id.sg_suffix.hex
+  name        = "docdb_sg_${random_id.sg_suffix.hex}"
   description = "Security group for Amazon DocumentDB"
   vpc_id      = aws_vpc.datavid-pdf-extractor.id
   depends_on  = [aws_security_group.tunneling_sg]
