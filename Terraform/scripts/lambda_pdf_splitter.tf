@@ -36,8 +36,32 @@ data "aws_iam_policy" "lambda_basic_execution_role_policy" {
   name = "AWSLambdaBasicExecutionRole"
 }
 
-resource "aws_iam_role" "pdf_splitter" {
+resource "aws_iam_role" "pdf_splitter_sqs" {
   name_prefix = "LambdaSQSRole-"
+  managed_policy_arns = [
+    data.aws_iam_policy.lambda_basic_execution_role_policy.arn,
+    aws_iam_policy.lambda_policy.arn
+  ]
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role" "pdf_splitter_s3" {
+  name_prefix = "LambdaS3Role-"
   managed_policy_arns = [
     data.aws_iam_policy.lambda_basic_execution_role_policy.arn,
     aws_iam_policy.lambda_policy.arn
@@ -132,29 +156,29 @@ resource "aws_s3_bucket_notification" "pdf_splitter_s3_bucket_notification" {
   }
 }
 
-resource "aws_iam_policy" "s3_access_policy" {
-  name        = "s3-access-policy"
-  description = "Grants all access to a specific S3 bucket and object"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect   = "Allow"
-        Action   = [
-                "s3:*",
-                "s3-object-lambda:*"
-        ]
-        Resource = ["*"]
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "s3_policy_attachment" {
-  policy_arn = aws_iam_policy.s3_access_policy.arn
-  role       = aws_iam_role.pdf_splitter.name
-}
+#resource "aws_iam_policy" "s3_access_policy" {
+#  name        = "s3-access-policy"
+#  description = "Grants all access to a specific S3 bucket and object"
+#
+#  policy = jsonencode({
+#    Version = "2012-10-17"
+#    Statement = [
+#      {
+#        Effect   = "Allow"
+#        Action   = [
+#                "s3:*",
+#                "s3-object-lambda:*"
+#        ]
+#        Resource = ["*"]
+#      }
+#    ]
+#  })
+#}
+#
+#resource "aws_iam_role_policy_attachment" "s3_policy_attachment" {
+#  policy_arn = aws_iam_policy.s3_access_policy.arn
+#  role       = aws_iam_role.pdf_splitter_s3.name
+#}
 
 #resource "aws_iam_policy" "s3_read_policy" {
 #  name        = "s3-read-policy"
@@ -241,27 +265,26 @@ resource "aws_iam_role_policy_attachment" "s3_policy_attachment" {
 #  })
 #}
 
-#resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
-#  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-#  role       = aws_iam_role.pdf_splitter.name
-#
-#  policy {
-#    policy_json = jsonencode({
-#      Version = "2012-10-17"
-#      Statement = [
-#        {
-#          Effect = "Allow"
-#          Action = [
-#            "s3:GetObject",
-#            "s3:PutObject"
-#          ]
-#          Resource = [
-#            concat("${data.aws_s3_bucket.datavid-pdfconverter.arn}", "/", var.target_pdf_key_prefix, "/*"),
-#            concat("${data.aws_s3_bucket.datavid-pdfconverter.arn}", "/", var.target_ing_key_prefix, "/*")
-#          ]
-#        }
-#      ]
-#    })
-#  }
-#}
+resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  role       = aws_iam_role.pdf_splitter_s3.name
+
+  policy {
+    policy_json = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Effect = "Allow"
+          Action = [
+            "s3:GetObject",
+            "s3:PutObject"
+          ]
+          Resource = [
+            "${data.aws_s3_bucket.datavid-pdfconverter.arn}/${var.target_ing_key_prefix}*"
+          ]
+        }
+      ]
+    })
+  }
+}
 
