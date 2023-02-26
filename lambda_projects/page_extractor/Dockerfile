@@ -11,25 +11,27 @@ RUN pip install --upgrade pip && \
     pip install -r requirements.txt && \
     pip install pytesseract
 
-ARG TF_VAR_target_key_prefix
-ARG TF_VAR_bbox_images_key_prefix
-ARG TF_VAR_masked_images_key_prefix
-ARG TF_VAR_table_corners_key_prefix
+ARG TARGET_KEY_PREFIX
+ARG TARGET_IMG_KEY_PREFIX
+ARG BBOX_IMAGES_KEY_PREFIx
+ARG MASKED_IMAGES_KEY_PREFIX
+ARG TABLE_CORNERS_KEY_PREFIx
 ARG AWS_ACCOUNT_ID
 ARG AWS_REGION
-ARG TF_VAR_sqs_queue_name
-ARG TF_VAR_batch_size
+#ARG sqs_queue_name
+ARG BATCH_SIZE
 ARG RES_HIGH
 ARG RES_LOW
 
 ENV RES_HIGH=$RES_HIGH
 ENV RES_LOW=$RES_LOW
-ENV BATCH_SIZE=$TF_VAR_batch_size
-ENV TARGET_KEY_PREFIX=$TF_VAR_target_key_prefix
-ENV BBOX_KEY_PREFIX=$TF_VAR_bbox_images_key_prefix
-ENV MASKED_KEY_PREFIX=TF_VAR_masked_images_key_prefix
-ENV TABLE_CORNERS_KEY_PREFIX=TF_VAR_table_corners_key_prefix
-ENV SQS_QUEUE_URL=https://sqs.$AWS_REGION.amazonaws.com/$AWS_ACCOUNT_ID/$TF_VAR_sqs_queue_name
+ENV BATCH_SIZE=$BATCH_SIZE
+ENV TARGET_KEY_PREFIX=$TARGET_KEY_PREFIX
+ENV TARGET_IMG_KEY_PREFIX=$TARGET_IMG_KEY_PREFIX
+ENV BBOX_KEY_PREFIX=$BBOX_IMAGES_KEY_PREFIx
+ENV MASKED_KEY_PREFIX=MASKED_IMAGES_KEY_PREFIX
+ENV TABLE_CORNERS_KEY_PREFIX=TABLE_CORNERS_KEY_PREFIX
+ENV SQS_QUEUE_URL=https://sqs.$AWS_REGION.amazonaws.com/$AWS_ACCOUNT_ID/$SQS_QUEUE_NAMe
 #ENV TESSDATA_PREFIX=tessdata
 
 # setting the CMD to your handler file_name.function_name
