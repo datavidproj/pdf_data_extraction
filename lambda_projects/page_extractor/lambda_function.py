@@ -246,8 +246,8 @@ def process_img(image, image_lres):
         # Extract the text blocks from the OCR result
         block_l = textpage.extractBLOCKS()
 
-        paragraph_bbox_l = extract_paragraphs(block_l, textpage)
-#        paragraph_bbox_l = extract_paragraphs(block_l)
+#        paragraph_bbox_l = extract_paragraphs(block_l, textpage)
+        paragraph_bbox_l = extract_paragraphs(block_l)
 
     return base64_jpg_l, paragraph_bbox_l, table_dim_l, output_map_lres, output_map, masked_tbl_img
 
