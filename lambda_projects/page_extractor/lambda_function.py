@@ -10,6 +10,9 @@ import pytesseract
 import copy
 
 s3_client = boto3.client('s3')
+region = os.environ.get('AWS_REGION')
+s3 = boto3.resource('s3', endpoint_url=f'https://s3.{region}.amazonaws.com')
+#s3 = boto3.resource('s3', endpoint_url=f'https://s3.{var.region}.amazonaws.com')
 sqs_client = boto3.client('sqs')
 
 TEXT_BLOCK_TYPE = 0

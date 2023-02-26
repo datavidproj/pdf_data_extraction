@@ -38,6 +38,11 @@ resource "aws_security_group" "docdb_sg" {
   }
 }
 
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id       = aws_vpc.datavid-pdf-extractor.id
+  service_name = "com.amazonaws.${var.AWS_REGION}.s3"
+}
+
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.datavid-pdf-extractor.id
   route {
