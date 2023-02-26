@@ -145,7 +145,7 @@ resource "aws_iam_policy" "s3_access_policy" {
                 "s3:*",
                 "s3-object-lambda:*"
         ]
-        Resource = "*"
+        Resource = ["*"]
       }
     ]
   })
