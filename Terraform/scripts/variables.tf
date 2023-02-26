@@ -18,11 +18,6 @@ variable "AWS_REGION" {
   default   = "093487613626"
 }
 
-variable "lambda_name_page_extractor" {
-  type    = string
-  default = "page_extractor"
-}
-
 variable "repo_name_pdf_splitter" {
   type    = string
   default = "pdf_splitter"
