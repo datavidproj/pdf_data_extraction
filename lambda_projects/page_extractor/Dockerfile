@@ -49,5 +49,9 @@ ENV AWS_REGION=$AWS_REGION
 ENV SQS_QUEUE_URL=https://sqs.$AWS_REGION.amazonaws.com/$AWS_ACCOUNT_ID/$SQS_QUEUE_NAME
 #ENV TESSDATA_PREFIX=tessdata
 
+RUN wget https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+RUN echo -e "[mongodb-org-4.0] \nname=MongoDB Repository\nbaseurl=https://repo.mongodb.org/yum/amazon/2013.03/mongodb-org/4.0/x86_64/\ngpgcheck=1 \nenabled=1 \ngpgkey=https://www.mongodb.org/static/pgp/server-4.0.asc" | sudo tee /etc/yum.repos.d/mongodb-org-4.0.repo
+RUN sudo yum install -y mongodb-org
+
 # setting the CMD to your handler file_name.function_name
 CMD [ "lambda_function.lambda_handler" ]

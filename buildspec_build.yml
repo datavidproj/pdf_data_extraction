@@ -1,0 +1,58 @@
+version: 0.2
+
+env:
+  secrets-manager:
+     # key: secret-id:json-key:version-stage:version-id
+     AWS_SECRET_ACCESS_KEY: arn:aws:secretsmanager:us-east-2:093487613626:secret:user/datavid/secret_access_key-Xuo9LZ:secret_access_key
+     DOCDB_CLUSTER_PASSWORD: arn:aws:secretsmanager:us-east-2:093487613626:secret:dev/docdb/password-oc0PMC:docdb_cluster_password
+phases:
+  install:
+    runtime-versions:
+      docker: latest
+    commands:
+      # Install dependencies
+      #- yum update -y
+      - yum install -y git unzip curl
+      # Install Terraform
+      - yum install -y yum-utils shadow-utils
+      - sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+      - sudo yum -y install terraform
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - export TF_VAR_docdb_cluster_password=$DOCDB_CLUSTER_PASSWORD
+  build:
+    commands:
+       - echo $AWS_SECRET_ACCESS_KEY
+      # Clone repository
+       - git clone https://github.com/datavidproj/pdf_data_extraction.git
+       - cd pdf_data_extraction/lambda_projects
+      # Initialize Terraform and install plugins
+       - terraform init
+       - terraform refresh
+      # plan build
+       - terraform plan -out=tfplan
+      # Apply Terraform changes
+       - terraform apply tfplan
+      # Build and register pdf_splitter
+       - cd pdf_splitter
+       - docker build -t $TF_VAR_repo_name_pdf_splitter --build-arg AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID --build-arg AWS_REGION=$AWS_DEFAULT_REGION  --build-arg SQS_QUEUE_NAME=$TF_VAR_sqs_queue_name --build-arg TARGET_IMG_KEY_PREFIX=$TF_VAR_target_img_key_prefix .
+       #- docker build -t $TF_VAR_repo_name_pdf_splitter .
+       - docker tag pdf_splitter:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$TF_VAR_repo_name_pdf_splitter:latest
+       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$TF_VAR_repo_name_pdf_splitter:latest
+      # Build and register page_extractor
+       - cd ../page_extractor
+       - docker build -t $TF_VAR_repo_name_page_extractor --build-arg BUCKET_NAME=$TF_VAR_bucket_name --build-arg AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID --build-arg AWS_REGION=$AWS_DEFAULT_REGION --build-arg TARGET_IMG_KEY_PREFIX=$TF_VAR_target_img_key_prefix --build-arg TARGET_KEY_PREFIX=$TF_VAR_target_key_prefix --build-arg BBOX_IMAGES_KEY_PREFIX=$TF_VAR_bbox_images_key_prefix --build-arg MASKED_IMAGES_KEY_PREFIX=$TF_VAR_masked_images_key_prefix --build-arg TABLE_CORNERS_KEY_PREFIX=$TF_VAR_table_corners_key_prefix --build-arg RES_HIGH=$RES_HIGH --build-arg RES_LOW=$RES_LOW --build-arg BATCH_SIZE=$TF_VAR_batch_size .
+       #- docker build -t $TF_VAR_repo_name_page_extractor .
+       - docker tag page_extractor:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$TF_VAR_repo_name_page_extractor:latest
+       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$TF_VAR_repo_name_page_extractor:latest
+      # Change to directory with Terraform script
+       - cd ../../Terraform/scripts
+      # Initialize Terraform and install plugins
+       - terraform init
+       - terraform refresh
+      # plan build
+       - terraform plan -out=tfplan
+      # Apply Terraform changes
+       - terraform apply tfplan
