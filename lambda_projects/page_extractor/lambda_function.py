@@ -123,7 +123,7 @@ def prepare_table_data(table_dim_l, image):
 
 # Debugging
 def save_bboximages(image, bucket, filename, suffix):
-    table_corners_key_prefix = os.environ["BBOX_KEY_PREFIX"]
+    table_corners_key_prefix = os.environ["BBOX_IMAGES_KEY_PREFIX"]
     base_filename = os.path.splitext(filename)[0]
     key = f"{table_corners_key_prefix}{base_filename}_{suffix}.jpg"
     print(f'temp: key={key}')
@@ -138,7 +138,7 @@ def save_masked_image(image, bucket, filename):
     # Convert the binary data to a bytes object
     image_b = encoded_img.tobytes()
 
-    table_masked_key_prefix = os.environ["MASKED_KEY_PREFIX"]
+    table_masked_key_prefix = os.environ["MASKED_IMAGES_KEY_PREFIX"]
     base_filename = os.path.splitext(filename)[0]
     key = f"{table_masked_key_prefix}{base_filename}_masked.jpg"
     print(f'mask: key={key}')
