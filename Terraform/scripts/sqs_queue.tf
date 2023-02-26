@@ -1,6 +1,6 @@
 resource "aws_sqs_queue" "pdf_page_info" {
   name                        = "PDFPageInfo"
-  visibility_timeout_seconds  = 900
+  visibility_timeout_seconds  = 5400
 }
 
 resource "aws_lambda_event_source_mapping" "page_extractor_sqs_mapping" {
