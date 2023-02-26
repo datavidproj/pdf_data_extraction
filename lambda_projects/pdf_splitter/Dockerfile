@@ -21,8 +21,8 @@ COPY lambda_function.py ./
 
 ARG AWS_ACCOUNT_ID
 ARG AWS_REGION
-ARG TF_VAR_sqs_queue_name
-ARG TF_VAR_target_img_key_prefix
+ARG SQS_QUEUE_NAME
+ARG TARGET_IMG_KEY_PREFIX
 
 ENV TARGET_IMG_KEY_PREFIX=$TF_VAR_target_img_key_prefix
 #ENV TARGET_PDF_KEY_PREFIX=project/pages
