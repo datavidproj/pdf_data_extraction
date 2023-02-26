@@ -122,7 +122,7 @@ def prepare_table_data(table_dim_l, image):
 def save_bboximages(image, bucket, filename, suffix):
     table_corners_key_prefix = os.environ["BBOX_KEY_PREFIX"]
     base_filename = os.path.splitext(filename)[0]
-    key = f"{table_corners_key_prefix}/{base_filename}_{suffix}.jpg"
+    key = f"{table_corners_key_prefix}{base_filename}_{suffix}.jpg"
     print(f'temp: key={key}')
     _, buffer = cv2.imencode('.jpg', image)
     image_b = buffer.tobytes()
@@ -137,7 +137,7 @@ def save_masked_image(image, bucket, filename):
 
     table_masked_key_prefix = os.environ["MASKED_KEY_PREFIX"]
     base_filename = os.path.splitext(filename)[0]
-    key = f"{table_masked_key_prefix}/{base_filename}_masked.jpg"
+    key = f"{table_masked_key_prefix}{base_filename}_masked.jpg"
     print(f'mask: key={key}')
     s3_client.put_object(Bucket=bucket, Key=key, Body=image_b)
 
@@ -251,7 +251,7 @@ def save_docdata(bucket, filename, docdata):
     # Save the docdata to S3
     target_key_prefix = os.environ["TARGET_KEY_PREFIX"]
     base_filename = os.path.splitext(filename)[0]
-    json_key = f"{target_key_prefix}/{base_filename}.json"
+    json_key = f"{target_key_prefix}{base_filename}.json"
     print(f'text_key={json_key}')
     jsonobj = json.dumps(docdata)
     s3_client.put_object(Bucket=bucket, Key=json_key, Body=jsonobj)
@@ -276,10 +276,10 @@ def delete_message(record):
 def save_table_corner_files(bucket, filename, filename_lres, output, output_lres):
     table_corners_key_prefix = os.environ["TABLE_CORNERS_KEY_PREFIX"]
     base_filename = os.path.splitext(filename)[0]
-    key = f"{table_corners_key_prefix}/{base_filename}_corners.jpg"
+    key = f"{table_corners_key_prefix}{base_filename}_corners.jpg"
     print(f'corner: key={key}')
     base_filename_lres = os.path.splitext(filename_lres)[0]
-    key_lres = f"{table_corners_key_prefix}/{base_filename_lres}_corners.jpg"
+    key_lres = f"{table_corners_key_prefix}{base_filename_lres}_corners.jpg"
     s3_client.put_object(Bucket=bucket, Key=key, Body=output)
     s3_client.put_object(Bucket=bucket, Key=key_lres, Body=output_lres)
 

@@ -154,3 +154,13 @@ variable "docdb_cluster_id" {
   type    = string
   default = "docdb-cluster-demo"
 }
+
+variable "lambda_name_pdf_splitter" {
+  type    = string
+  default = "pdf_splitter"
+}
+
+variable "lambda_name_page_extractor" {
+  type    = string
+  default = "page_extractor"
+}
