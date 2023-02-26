@@ -37,7 +37,7 @@ data "aws_iam_policy" "lambda_basic_execution_role_policy" {
 }
 
 resource "aws_iam_role" "pdf_splitter_sqs" {
-  name_prefix = "LambdaSQSRole-"
+  name_prefix = "LambdaPDFSplitterRole-"
   managed_policy_arns = [
     data.aws_iam_policy.lambda_basic_execution_role_policy.arn,
     aws_iam_policy.lambda_policy.arn
@@ -59,47 +59,6 @@ resource "aws_iam_role" "pdf_splitter_sqs" {
 }
 EOF
 }
-
-resource "aws_iam_role" "pdf_splitter_s3" {
-  name_prefix = "LambdaS3Role-"
-  managed_policy_arns = [
-    data.aws_iam_policy.lambda_basic_execution_role_policy.arn,
-    aws_iam_policy.lambda_policy.arn
-  ]
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "lambda.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-EOF
-}
-
-#resource "aws_iam_role" "pdf_splitter" {
-#  name = "pdf_splitter_lambda_role"
-#
-#  assume_role_policy = jsonencode({
-#    Version = "2012-10-17"
-#    Statement = [
-#      {
-#        Action = "sts:AssumeRole"
-#        Effect = "Allow"
-#        Principal = {
-#          Service = "lambda.amazonaws.com"
-#        }
-#      }
-#    ]
-#  })
-#}
 
 data "aws_iam_policy_document" "lambda_policy_document" {
   statement {
@@ -130,10 +89,15 @@ resource "aws_iam_policy" "lambda_policy" {
   #  }
 }
 
-#resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
-#  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-#  role       = aws_iam_role.pdf_splitter.name
-#}
+resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  role       = aws_iam_role.pdf_splitter.name
+}
+
+resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  role       = aws_iam_role.pdf_splitter.name
+}
 
 resource "aws_lambda_permission" "pdf_splitter" {
   statement_id  = "AllowExecutionFromS3Bucket"
@@ -157,7 +121,7 @@ resource "aws_s3_bucket_notification" "pdf_splitter_s3_bucket_notification" {
 }
 
 #resource "aws_iam_policy" "s3_access_policy" {
-#  name        = "s3-access-policy"
+#  name        = "s3-access-policy-pdf-splitter"
 #  description = "Grants all access to a specific S3 bucket and object"
 #
 #  policy = jsonencode({
@@ -177,7 +141,7 @@ resource "aws_s3_bucket_notification" "pdf_splitter_s3_bucket_notification" {
 #
 #resource "aws_iam_role_policy_attachment" "s3_policy_attachment" {
 #  policy_arn = aws_iam_policy.s3_access_policy.arn
-#  role       = aws_iam_role.pdf_splitter_s3.name
+#  role       = aws_iam_role.pdf_splitter.name
 #}
 
 #resource "aws_iam_policy" "s3_read_policy" {
@@ -231,60 +195,3 @@ resource "aws_s3_bucket_notification" "pdf_splitter_s3_bucket_notification" {
 ##  role       = aws_iam_role.pdf_splitter.role
 #  role       = aws_iam_role.pdf_splitter.name
 #}
-
-
-#resource "null_resource" "delay_creation" {
-#  provisioner "local-exec" {
-#    command = "sleep 60"
-#  }
-#
-#  depends_on   = [aws_lambda_function.pdf_splitter, aws_sqs_queue.pdf_page_info]
-#}
-
-#resource "aws_sqs_queue_policy" "pdf_splitter_sqs_queue_policy" {
-#  queue_url = aws_sqs_queue.pdf_page_info.id
-#  depends_on   = [aws_lambda_function.pdf_splitter, aws_sqs_queue.pdf_page_info]
-#
-#  policy = jsonencode({
-#    Version = "2012-10-17",
-#    Id      = "sqspolicy",
-##    Id      = "AllowLambdaToWriteToQueue",
-#    Statement = [
-#      {
-#        Sid = "AllowLambdaToWriteToQueue",
-#        Effect = "Allow",
-#        Principal = {
-#          AWS = aws_lambda_function.pdf_splitter.arn
-#        },
-#        Action = [
-#            "sqs:SendMessage"
-#        ],
-#        Resource = aws_sqs_queue.pdf_page_info.arn
-#      }
-#    ]
-#  })
-#}
-
-resource "aws_iam_role_policy_attachment" "pdf_splitter_policy_attachment" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-  role       = aws_iam_role.pdf_splitter_s3.name
-
-  policy {
-    policy_json = jsonencode({
-      Version = "2012-10-17"
-      Statement = [
-        {
-          Effect = "Allow"
-          Action = [
-            "s3:GetObject",
-            "s3:PutObject"
-          ]
-          Resource = [
-            "${data.aws_s3_bucket.datavid-pdfconverter.arn}/${var.target_ing_key_prefix}*"
-          ]
-        }
-      ]
-    })
-  }
-}
-
