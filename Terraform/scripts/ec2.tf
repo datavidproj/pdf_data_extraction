@@ -14,6 +14,10 @@ resource "aws_subnet" "public" {
   # 2,048 IP addresses each
   cidr_block                = cidrsubnet(aws_vpc.datavid-pdf-extractor.cidr_block, 4, each.value)
   map_public_ip_on_launch   = true
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "random_id" "sg_suffix" {
