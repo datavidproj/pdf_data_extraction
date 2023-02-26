@@ -33,11 +33,11 @@ def extract_paragraphs(block_l):
     for block in block_l:
         x0, y0, x1, y1, lines, block_no, block_type = block
         print(f'extract paragraph = {block}')
-#        if block_type == TEXT_BLOCK_TYPE:
+        if block_type == TEXT_BLOCK_TYPE:
 #            rect = fitz.Rect(x0, y0, x1, y1)
 #            textpage = page.get_textpage_ocr(flags=7, language='eng', rect = rect, dpi=600, full=True)
 #            lines = textpage.extractText()
-        paragraph_bbox_l.append((x0, y0, x1, y1, lines))
+            paragraph_bbox_l.append((x0, y0, x1, y1, lines))
 #            paragraph_l.append(text)
     return paragraph_bbox_l
 
