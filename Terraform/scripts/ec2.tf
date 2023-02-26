@@ -15,9 +15,6 @@ resource "aws_subnet" "public" {
   cidr_block                = cidrsubnet(aws_vpc.datavid-pdf-extractor.cidr_block, 4, each.value)
   map_public_ip_on_launch   = true
 
-  lifecycle {
-    create_before_destroy = true
-  }
 }
 
 resource "random_id" "sg_suffix" {
@@ -108,6 +105,10 @@ resource "aws_security_group" "tunneling_sg" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
