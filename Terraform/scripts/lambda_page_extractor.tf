@@ -29,15 +29,21 @@ resource "aws_lambda_function" "page_extractor" {
   }
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_network_permissions" {
-#  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"  # or another policy that grants permissions to DescribeNetworkInterfaces
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"  # or another policy that grants permissions to DescribeNetworkInterfaces
-#  role       = "${aws_lambda_function.page_extractor.role}"
-  role       = "${aws_iam_role.page_extractor.name}"
+data "aws_iam_policy" "lambda_basic_execution_role_policy" {
+  name = "AWSLambdaBasicExecutionRole"
+}
+
+data "aws_iam_policy" "lambda_s3_full_access_role_policy" {
+  name = "AmazonS3FullAccess"
 }
 
 resource "aws_iam_role" "page_extractor" {
-  name = "iam_for_page_extractor"
+  name_prefix = "LambdaPageExtractorRole-"
+  managed_policy_arns = [
+    data.aws_iam_policy.lambda_basic_execution_role_policy.arn,
+    data.aws_iam_policy.lambda_s3_full_access_role_policy.arn
+#    aws_iam_policy.lambda_policy.arn
+  ]
 
   assume_role_policy = <<EOF
 {
@@ -55,6 +61,31 @@ resource "aws_iam_role" "page_extractor" {
 }
 EOF
 }
+
+resource "aws_iam_role_policy_attachment" "lambda_network_permissions" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"  # or another policy that grants permissions to DescribeNetworkInterfaces
+  role       = "${aws_iam_role.page_extractor.name}"
+}
+
+#resource "aws_iam_role" "page_extractor" {
+#  name = "iam_for_page_extractor"
+#
+#  assume_role_policy = <<EOF
+#{
+#  "Version": "2012-10-17",
+#  "Statement": [
+#    {
+#      "Action": "sts:AssumeRole",
+#      "Principal": {
+#        "Service": "lambda.amazonaws.com"
+#      },
+#      "Effect": "Allow",
+#      "Sid": ""
+#    }
+#  ]
+#}
+#EOF
+#}
 
 #resource "aws_iam_role" "docdb_lambda_role" {
 #  name = "docdb_lambda_role"
