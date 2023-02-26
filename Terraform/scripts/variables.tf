@@ -15,7 +15,7 @@ variable "batch_size" {
 
 variable "AWS_REGION" {
   type      = string
-  default   = "093487613626"
+  default   = "us-east-2"
 }
 
 variable "repo_name_pdf_splitter" {
