@@ -90,7 +90,8 @@ data "http" "myip" {
 
 resource "aws_security_group" "tunneling_sg" {
   vpc_id      = aws_vpc.datavid-pdf-extractor.id
-  name        = "public_subnet"
+#  name        = "public_subnet"
+  name        = "public_subnet_sg_${random_id.sg_suffix.hex}"
   description = "Connect Public Subnet"
 
   ingress {
