@@ -38,17 +38,20 @@ resource "aws_security_group" "docdb_sg" {
   }
 }
 
-resource "aws_vpc_endpoint" "s3" {
-  vpc_id       = aws_vpc.datavid-pdf-extractor.id
-  service_name = "com.amazonaws.${var.AWS_REGION}.s3"
-}
-
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.datavid-pdf-extractor.id
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.datavid-pdf-extractor.id
   }
+}
+
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id       = aws_vpc.datavid-pdf-extractor.id
+  service_name = "com.amazonaws.${var.AWS_REGION}.s3"
+
+#  route_table_ids = [aws_vpc.vpc.main_route_table_id]
+  route_table_ids = [aws_route_table.public.id]
 }
 
 #resource "aws_route_table_association" "public" {
