@@ -222,7 +222,7 @@ def process_img(image, image_lres):
 
         # Get pixmap for page insert
         page_image = list(img_file.pages())[0]
-        pix = page_image.get_pixmap(dpi=600, alpha=False)
+        pix = page_image.get_pixmap(dpi=150, alpha=False)
 
 #        # Set the image resolution
 #        page = list(doc.pages())[0]
