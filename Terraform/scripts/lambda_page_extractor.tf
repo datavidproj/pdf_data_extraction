@@ -29,13 +29,13 @@ resource "aws_lambda_function" "page_extractor" {
   }
 }
 
-data "aws_iam_policy" "lambda_basic_execution_role_policy" {
-  name = "AWSLambdaBasicExecutionRole"
-}
-
-data "aws_iam_policy" "lambda_s3_full_access_role_policy" {
-  name = "AmazonS3FullAccess"
-}
+#data "aws_iam_policy" "lambda_basic_execution_role_policy" {
+#  name = "AWSLambdaBasicExecutionRole"
+#}
+#
+#data "aws_iam_policy" "lambda_s3_full_access_role_policy" {
+#  name = "AmazonS3FullAccess"
+#}
 
 resource "aws_iam_role" "page_extractor" {
   name_prefix = "LambdaPageExtractorRole-"
