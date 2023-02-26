@@ -13,9 +13,9 @@ variable "batch_size" {
   default = 1
 }
 
-variable "lambda_name_pdf_splitter" {
-  type    = string
-  default = "pdf_splitter"
+variable "AWS_REGION" {
+  type      = string
+  default   = "093487613626"
 }
 
 variable "lambda_name_page_extractor" {

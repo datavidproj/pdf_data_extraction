@@ -121,8 +121,8 @@ resource "aws_lambda_permission" "pdf_splitter" {
 
 
 resource "aws_s3_bucket_notification" "pdf_splitter_s3_bucket_notification" {
-  #  bucket = "datavid-pdfconverter"
-  bucket     = data.aws_s3_bucket.datavid-pdfconverter.id
+  bucket = "datavid-pdfconverter"
+  #bucket     = data.aws_s3_bucket.datavid-pdfconverter.id
   depends_on = [aws_lambda_function.pdf_splitter]
 
   lambda_function {
@@ -131,6 +131,83 @@ resource "aws_s3_bucket_notification" "pdf_splitter_s3_bucket_notification" {
     filter_prefix       = var.source_pdf_key_prefix
   }
 }
+
+resource "aws_iam_policy" "s3_access_policy" {
+  name        = "s3-access-policy"
+  description = "Grants all access to a specific S3 bucket and object"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = [
+                "s3:*",
+                "s3-object-lambda:*"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "s3_policy_attachment" {
+  policy_arn = aws_iam_policy.s3_access_policy.arn
+  role       = aws_iam_role.pdf_splitter.name
+}
+
+#resource "aws_iam_policy" "s3_read_policy" {
+#  name        = "s3-read-policy"
+#  description = "Grants read access to a specific S3 bucket and object"
+#
+#  policy = jsonencode({
+#    Version = "2012-10-17"
+#    Statement = [
+#      {
+#        Effect   = "Allow"
+#        Action   = [
+#          "s3:GetObject"
+#        ]
+#        Resource = [
+#          "arn:aws:s3:::${var.bucket_name}/${var.source_pdf_key_prefix}*"
+#        ]
+#      }
+#    ]
+#  })
+#}
+#
+#resource "aws_iam_role_policy_attachment" "s3_read_attachment" {
+#  policy_arn = aws_iam_policy.s3_read_policy.arn
+##  role       = aws_iam_role.pdf_splitter.role
+#  role       = aws_iam_role.pdf_splitter.name
+#}
+#
+#resource "aws_iam_policy" "s3_write_policy_pdf_splitter" {
+#  name        = "s3-write-policy"
+#  description = "Grants read access to a specific S3 bucket and object"
+#
+#  policy = jsonencode({
+#    Version = "2012-10-17"
+#    Statement = [
+#      {
+#        Effect   = "Allow"
+#        Action   = [
+#          "s3:PutObject"
+#        ]
+#        Resource = [
+#          "arn:aws:s3:::${var.bucket_name}/${var.target_img_key_prefix}*"
+#        ]
+#      }
+#    ]
+#  })
+#}
+#
+#resource "aws_iam_role_policy_attachment" "s3_write_for_pdf_splitter" {
+#  policy_arn = aws_iam_policy.s3_write_policy_pdf_splitter.arn
+##  role       = aws_iam_role.pdf_splitter.role
+#  role       = aws_iam_role.pdf_splitter.name
+#}
+
 
 #resource "null_resource" "delay_creation" {
 #  provisioner "local-exec" {
