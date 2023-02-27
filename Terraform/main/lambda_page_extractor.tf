@@ -94,7 +94,8 @@ resource "aws_route_table_association" "private" {
 resource "aws_route" "s3" {
   route_table_id            = aws_route_table.private.id
 #  destination_cidr_block    = "com.amazonaws.${var.AWS_REGION}.s3"
-  destination_cidr_block    = "vpce.amazonaws.com"
+#  destination_cidr_block    = "vpce.amazonaws.com"
+  destination_cidr_block    = aws_vpc_endpoint.s3.cidr_blocks[0]
   vpc_endpoint_id           = aws_vpc_endpoint.s3.id
 }
 
