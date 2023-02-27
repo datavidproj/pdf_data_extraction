@@ -24,8 +24,8 @@ endpoint_id = "vpce-017159da4524c0a1e"
 
 #s3_client = boto3.resource('s3', endpoint_url=f'https://s3.{region}.amazonaws.com')
 # Create an S3 client that connects to the VPC endpoint
-s3_client = boto3.client('s3', endpoint_url=f'https://{endpoint_id}.s3.amazonaws.com')
-#s3_client = boto3.client('s3')
+#s3_client = boto3.client('s3', endpoint_url=f'https://{endpoint_id}.s3.amazonaws.com')
+s3_client = boto3.client('s3')
 sqs_client = boto3.client('sqs')
 docdb_client = boto3.client('docdb', region_name=region, aws_access_key_id=aws_access_key,
                       aws_secret_access_key=aws_secret_access_key)

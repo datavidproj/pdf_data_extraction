@@ -33,11 +33,11 @@ resource "aws_lambda_function" "page_extractor" {
       SQS_QUEUE_URL            = aws_sqs_queue.pdf_page_info.url
     }
   }
-  vpc_config {
-    security_group_ids = [data.aws_security_group.docdb_sg.id]
-    subnet_ids         = [data.aws_subnet.private.id]
-#    subnet_ids         = values(aws_subnet.public)[*].id
-  }
+#  vpc_config {
+#    security_group_ids = [data.aws_security_group.docdb_sg.id]
+#    subnet_ids         = [data.aws_subnet.private.id]
+##    subnet_ids         = values(aws_subnet.public)[*].id
+#  }
 }
 
 #data "aws_iam_policy" "lambda_basic_execution_role_policy" {
