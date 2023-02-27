@@ -88,19 +88,23 @@ resource "aws_route_table" "private" {
 resource "aws_route_table_association" "private" {
   subnet_id      = data.aws_subnet.private.id
   route_table_id = aws_route_table.private.id
-  depends_on = [aws_route.s3]
 }
+
+resource "aws_vpc_endpoint_route_table_association" "s3" {
+  route_table_id  = aws_route_table.private.id
+  vpc_endpoint_id = aws_vpc_endpoint.s3.id
+} 
 
 # Add a route to the route table that points to the VPC endpoint
-resource "aws_route" "s3" {
-  route_table_id            = aws_route_table.private.id
-#  destination_cidr_block    = "com.amazonaws.${var.AWS_REGION}.s3"
-#  destination_cidr_block    = "vpce.amazonaws.com"
-  destination_cidr_block    = aws_vpc_endpoint.s3.cidr_blocks[0]
-  vpc_endpoint_id           = aws_vpc_endpoint.s3.id
-
-  depends_on = [aws_vpc_endpoint.s3]
-}
+#resource "aws_route" "s3" {
+#  route_table_id            = aws_route_table.private.id
+##  destination_cidr_block    = "com.amazonaws.${var.AWS_REGION}.s3"
+##  destination_cidr_block    = "vpce.amazonaws.com"
+#  destination_cidr_block    = aws_vpc_endpoint.s3.cidr_blocks[0]
+#  vpc_endpoint_id           = aws_vpc_endpoint.s3.id
+#
+#  depends_on = [aws_vpc_endpoint.s3]
+#}
 
 resource "aws_iam_role" "page_extractor" {
   name_prefix = "LambdaPageExtractorRole-"
