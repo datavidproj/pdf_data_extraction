@@ -4,7 +4,7 @@ data "aws_security_group" "docdb_sg" {
 
 data "aws_subnet" "private" {
     filter {
-        name     = "tag:Name"
+        name     = "tag:name"
         values   = [var.private_subnet_name]
     }
 }
