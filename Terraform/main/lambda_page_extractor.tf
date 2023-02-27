@@ -4,7 +4,7 @@ data "aws_security_group" "docdb_sg" {
 
 data "aws_subnet" "private" {
     filter {
-        name     = "tag:name"
+        name     = "tag:Name"
         values   = [var.private_subnet_name]
     }
 }
@@ -51,12 +51,12 @@ resource "aws_lambda_function" "page_extractor" {
 #  name = "AmazonSQSFullAccess"
 #}
 
-data "aws_subnet" "private" {
-   filter {
-        name    = "tag:name"
-        values  = [var.private_subnet_name]
-    } 
-}
+#data "aws_subnet" "private" {
+#   filter {
+#        name    = "tag:name"
+#        values  = [var.private_subnet_name]
+#    } 
+#}
 
 data "aws_security_group" "docdb" {
     name    = "docdb_sg"
