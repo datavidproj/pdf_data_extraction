@@ -97,6 +97,8 @@ resource "aws_route" "s3" {
 #  destination_cidr_block    = "vpce.amazonaws.com"
   destination_cidr_block    = aws_vpc_endpoint.s3.cidr_blocks[0]
   vpc_endpoint_id           = aws_vpc_endpoint.s3.id
+
+  depends_on = [aws_vpc_endpoint.s3]
 }
 
 resource "aws_iam_role" "page_extractor" {
