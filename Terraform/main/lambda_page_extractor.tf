@@ -88,6 +88,7 @@ resource "aws_route_table" "private" {
 resource "aws_route_table_association" "private" {
   subnet_id      = data.aws_subnet.private.id
   route_table_id = aws_route_table.private.id
+  depends_on = [aws_route.s3]
 }
 
 # Add a route to the route table that points to the VPC endpoint
