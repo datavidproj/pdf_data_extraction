@@ -1,5 +1,3 @@
-data 
-
 resource "aws_vpc" "datavid-pdf-extractor" {
   cidr_block = var.vpc_cidr
 }
@@ -143,13 +141,13 @@ resource "aws_security_group" "tunnelling_sg" {
 #  content = tls_private_key.pk.private_key_pem
 #}
 
-resource "aws_key_pair" "kp" {
-  key_name   = trimsuffix("${var.key_name}", ".pem")
-  public_key = tls_private_key.pk.public_key_openssh
-  provisioner "local-exec" {
-    command = "echo '${tls_private_key.pk.private_key_pem}' > ./${var.key_name}"
-  }
-}
+#resource "aws_key_pair" "kp" {
+#  key_name   = trimsuffix("${var.key_name}", ".pem")
+#  public_key = tls_private_key.pk.public_key_openssh
+#  provisioner "local-exec" {
+#    command = "echo '${tls_private_key.pk.private_key_pem}' > ./${var.key_name}"
+#  }
+#}
 
 #resource "aws_instance" "datavid-pdf-extractor" {
 #  vpc_security_group_ids        = ["${aws_security_group.tunneling_sg.id}"]
@@ -164,17 +162,19 @@ resource "aws_key_pair" "kp" {
 #  }
 #}
 
-resource "aws_instance" "datavid-pdf-extractor" {
-  vpc_security_group_ids        = ["${aws_security_group.tunnelling_sg.id}"]
-  subnet_id                     = aws_subnet.public.id
-  ami                           = data.aws_ami.amazon_2.id
-  instance_type                 = var.ec2_instance_type_name
-  key_name                      = trimsuffix("${var.key_name}", ".pem")
-  associate_public_ip_address   = true
 
-  tags = {
-    Name = "${var.tunnelling_server_name}"
-  }
+
+resource "aws_instance" "datavid-pdf-extractor" {
+    vpc_security_group_ids        = ["${aws_security_group.tunnelling_sg.id}"]
+    subnet_id                     = aws_subnet.public.id
+    ami                           = data.aws_ami.amazon_2.id
+    instance_type                 = var.ec2_instance_type_name
+    key_name                      = trimsuffix("${var.key_name}", ".pem")
+    associate_public_ip_address   = true
+
+    tags = {
+        Name = "${var.tunnelling_server_name}"
+    }
 }
 
 #output "instance_id" {
