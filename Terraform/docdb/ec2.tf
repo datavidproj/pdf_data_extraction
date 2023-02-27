@@ -177,13 +177,13 @@ resource "aws_instance" "datavid-pdf-extractor" {
     }
 }
 
-#output "instance_id" {
-#  description = "ID of the Server instance"
-#  value       = aws_instance.datavid-pdf-extractor.id
-#}
+output "instance_id" {
+  description = "ID of the Server instance"
+  value       = aws_instance.datavid-pdf-extractor.id
+}
 
-#output "instance_public_ip" {
-#  description = "Public IP address of the Server instance"
-#  value       = aws_instance.datavid-pdf-extractor.public_ip
-#}
+output "instance_public_ip" {
+  description = "Public IP address of the Server instance"
+  value       = aws_instance.datavid-pdf-extractor.public_ip
+}
 
