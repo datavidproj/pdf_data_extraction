@@ -144,10 +144,10 @@ variable "tunnelling_server_name" {
   default = "datavid-tunneling-server"
 }
 
-variable "tunnelling_server_ip" {
-  type    = string
-  default = "10.18.0.101"
-}
+#variable "tunnelling_server_ip" {
+#  type    = string
+#  default = "10.18.0.101"
+#}
 
 variable "docdb_instance_class_name" {
   type    = string
