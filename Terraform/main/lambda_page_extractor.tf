@@ -33,11 +33,11 @@ resource "aws_lambda_function" "page_extractor" {
       SQS_QUEUE_URL            = aws_sqs_queue.pdf_page_info.url
     }
   }
-#  vpc_config {
-#    security_group_ids = [data.aws_security_group.docdb_sg.id]
-#    subnet_ids         = [data.aws_subnet.private.id]
-##    subnet_ids         = values(aws_subnet.public)[*].id
-#  }
+  vpc_config {
+    security_group_ids = [data.aws_security_group.docdb_sg.id]
+    subnet_ids         = [data.aws_subnet.private.id]
+#    subnet_ids         = values(aws_subnet.public)[*].id
+  }
 }
 
 #data "aws_iam_policy" "lambda_basic_execution_role_policy" {
@@ -72,9 +72,29 @@ data "aws_vpc" "datavid-pdf-extractor" {
 resource "aws_vpc_endpoint" "s3" {
     vpc_id              = data.aws_vpc.datavid-pdf-extractor.id
     service_name        = "com.amazonaws.${var.AWS_REGION}.s3"
-    vpc_endpoint_type   = "Interface"
-    subnet_ids          = [data.aws_subnet.private.id]
-    security_group_ids  = [data.aws_security_group.docdb.id]
+    vpc_endpoint_type   = "Gateway"
+    route_table_ids     = [aws_route_table.private.id]
+#    vpc_endpoint_type   = "Interface"
+#    subnet_ids          = [data.aws_subnet.private.id]
+#    security_group_ids  = [data.aws_security_group.docdb.id]
+}
+
+# Create a new route table
+resource "aws_route_table" "private" {
+  vpc_id = data.aws_vpc.datavid-pdf-extractor.id
+}
+
+# Associate the route table with a subnet
+resource "aws_route_table_association" "private" {
+  subnet_id      = data.aws_subnet.private.id
+  route_table_id = aws_route_table.private.id
+}
+
+# Add a route to the route table that points to the VPC endpoint
+resource "aws_route" "s3" {
+  route_table_id            = aws_route_table.private.id
+  destination_cidr_block    = "com.amazonaws.${var.AWS_REGION}.s3"
+  vpc_endpoint_id           = aws_vpc_endpoint.s3.id
 }
 
 resource "aws_iam_role" "page_extractor" {
@@ -186,6 +206,30 @@ resource "aws_iam_policy" "lambda_sqs_policy" {
 
 resource "aws_iam_role_policy_attachment" "lambda_sqs_policy_attachment" {
   policy_arn = aws_iam_policy.lambda_sqs_policy.arn
+  role       = aws_iam_role.page_extractor.name
+}
+
+resource "aws_iam_policy" "vpc_endpoint_policy" {
+  name   = "vpcendpoint-policy"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid = "VPCEndpointAccess"
+        Effect = "Allow"
+        Action = [
+          "ec2:CreateNetworkInterface",
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:DeleteNetworkInterface"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "vpc_endpoint" {
+  policy_arn = aws_iam_policy.vpc_endpoint_policy.arn
   role       = aws_iam_role.page_extractor.name
 }
 
