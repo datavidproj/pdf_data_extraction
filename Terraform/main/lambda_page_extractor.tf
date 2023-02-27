@@ -51,6 +51,32 @@ resource "aws_lambda_function" "page_extractor" {
 #  name = "AmazonSQSFullAccess"
 #}
 
+data "aws_subnet" "private" {
+   filter {
+        name    = "tag:name"
+        values  = [var.private_subnet_name]
+    } 
+}
+
+data "aws_security_group" "docdb" {
+    name    = "docdb_sg"
+}
+
+data "aws_vpc" "datavid-pdf-extractor" {
+  filter {
+    name   = "tag:Name"
+    values = [var.vpc_name]
+  }
+}
+
+resource "aws_vpc_endpoint" "s3" {
+    vpc_id              = data.aws_vpc.datavid-pdf-extractor[0].id
+    service_name        = "com.amazonaws.${var.AWS_REGION}.s3"
+    vpc_endpoint_type   = "Interface"
+    subnet_ids          = [data.aws_subnet.private.id]
+    security_group_ids  = [data.aws_security_group.docdb.id]
+}
+
 resource "aws_iam_role" "page_extractor" {
   name_prefix = "LambdaPageExtractorRole-"
   managed_policy_arns = [
@@ -161,5 +187,9 @@ resource "aws_iam_policy" "lambda_sqs_policy" {
 resource "aws_iam_role_policy_attachment" "lambda_sqs_policy_attachment" {
   policy_arn = aws_iam_policy.lambda_sqs_policy.arn
   role       = aws_iam_role.page_extractor.name
+}
+
+output "s3_endpoint_id" {
+  value = aws_vpc_endpoint.s3.id
 }
 

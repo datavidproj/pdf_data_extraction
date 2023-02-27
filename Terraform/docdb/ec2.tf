@@ -1,5 +1,8 @@
 resource "aws_vpc" "datavid-pdf-extractor" {
   cidr_block = var.vpc_cidr
+  tags = {
+    Name = "datavid_demo"
+  }
 }
 
 resource "aws_internet_gateway" "datavid-pdf-extractor" {
@@ -68,13 +71,16 @@ resource "aws_route_table" "public" {
   }
 }
 
-resource "aws_vpc_endpoint" "s3" {
-  vpc_id       = aws_vpc.datavid-pdf-extractor.id
-  service_name = "com.amazonaws.${var.AWS_REGION}.s3"
-
-#  route_table_ids = [aws_vpc.vpc.main_route_table_id]
-  route_table_ids = [aws_route_table.public.id]
-}
+#resource "aws_vpc_endpoint" "s3" {
+#  vpc_id       = aws_vpc.datavid-pdf-extractor.id
+#  service_name = "com.amazonaws.${var.AWS_REGION}.s3"
+#
+##  route_table_ids = [aws_vpc.vpc.main_route_table_id]
+##  route_table_ids = [aws_route_table.public.id]
+#  vpc_endpoint_type  = "Interface"
+#  subnet_ids         = [aws_subnet.private.id]
+#  security_group_ids = [aws_security_group.docdb.id]
+#}
 
 #resource "aws_route_table_association" "public" {
 #  subnet_id      = values(aws_subnet.public)[0].id
@@ -187,3 +193,6 @@ output "instance_public_ip" {
   value       = aws_instance.datavid-pdf-extractor.public_ip
 }
 
+#output "s3_endpoint_id" {
+#  value = aws_vpc_endpoint.s3.id
+#}

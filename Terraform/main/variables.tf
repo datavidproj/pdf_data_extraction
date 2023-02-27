@@ -196,3 +196,8 @@ variable "private_subnet_name" {
   type    = string
   default = "private_subnet"
 }
+
+variable "vpc_name" {
+    type    = string
+    default = "datavid_demo"
+}
