@@ -70,7 +70,7 @@ data "aws_vpc" "datavid-pdf-extractor" {
 }
 
 resource "aws_vpc_endpoint" "s3" {
-    vpc_id              = data.aws_vpc.datavid-pdf-extractor[0].id
+    vpc_id              = data.aws_vpc.datavid-pdf-extractor.id
     service_name        = "com.amazonaws.${var.AWS_REGION}.s3"
     vpc_endpoint_type   = "Interface"
     subnet_ids          = [data.aws_subnet.private.id]
