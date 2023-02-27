@@ -1,5 +1,16 @@
+data "aws_security_group" "docdb_sg" {
+    name    = var.docdb_sg
+}
+
+data "aws_subnet" "private" {
+    filter {
+        name     = "tag:name"
+        values   = [var.private_subnet_name]
+    }
+}
+
 data "aws_ecr_repository" "page_extractor" {
-  name = var.repo_name_page_extractor
+  name  = var.repo_name_page_extractor
 }
 
 resource "aws_lambda_function" "page_extractor" {
@@ -13,7 +24,7 @@ resource "aws_lambda_function" "page_extractor" {
   timeout     = 900
   environment {
     variables = {
-      S3_BUCKET                = "datavid-pdfconverter"
+      S3_BUCKET                = var.bucket_name
       BATCH_SIZE               = var.batch_size
       TARGET_KEY_PREFIX        = var.target_key_prefix
       TEMP_KEY_PREFIX          = var.bbox_images_key_prefix
@@ -23,9 +34,9 @@ resource "aws_lambda_function" "page_extractor" {
     }
   }
   vpc_config {
-    security_group_ids = [aws_security_group.docdb_sg.id]
-#    subnet_ids         = [aws_subnet.public.id]
-    subnet_ids         = values(aws_subnet.public)[*].id
+    security_group_ids = [data.aws_security_group.docdb_sg.id]
+    subnet_ids         = [data.aws_subnet.private.id]
+#    subnet_ids         = values(aws_subnet.public)[*].id
   }
 }
 
@@ -36,9 +47,9 @@ resource "aws_lambda_function" "page_extractor" {
 #data "aws_iam_policy" "lambda_s3_full_access_role_policy" {
 #  name = "AmazonS3FullAccess"
 #}
-data "aws_iam_policy" "lambda_sqs_full_access_role_policy" {
-  name = "AmazonSQSFullAccess"
-}
+#data "aws_iam_policy" "lambda_sqs_full_access_role_policy" {
+#  name = "AmazonSQSFullAccess"
+#}
 
 resource "aws_iam_role" "page_extractor" {
   name_prefix = "LambdaPageExtractorRole-"

@@ -9,11 +9,23 @@ import numpy as np
 import pytesseract
 import copy
 
-s3_client = boto3.client('s3')
 region = os.environ.get('AWS_REGION')
-s3 = boto3.resource('s3', endpoint_url=f'https://s3.{region}.amazonaws.com')
-#s3 = boto3.resource('s3', endpoint_url=f'https://s3.{var.region}.amazonaws.com')
+aws_access_key = os.environ.get('AWS_ACCESS_KEY')
+aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+table_corners_key_prefix = os.environ.get("BBOX_IMAGES_KEY_PREFIX")
+table_masked_key_prefix = os.environ.get("MASKED_IMAGES_KEY_PREFIX")
+target_key_prefix = os.environ.get("TARGET_KEY_PREFIX")
+table_corners_key_prefix = os.environ.get("TABLE_CORNERS_KEY_PREFIX")
+db_name = os.environ.get("DOCDB_DB_NAME")
+collection_name = os.environ.get("DOCDB_COLLECTION_NAME")
+#bucket_name = os.environ.get("BUCKET_NAME")
+
+
+s3_client = boto3.resource('s3', endpoint_url=f'https://s3.{region}.amazonaws.com')
+#s3_client = boto3.client('s3')
 sqs_client = boto3.client('sqs')
+docdb_client = boto3.client('docdb', region_name=region, aws_access_key_id=aws_access_key,
+                      aws_secret_access_key=aws_secret_access_key)
 
 TEXT_BLOCK_TYPE = 0
 IMG_BLOCK_TYPE = 1
@@ -25,8 +37,6 @@ IMG_BLOCK_TYPE = 1
 #        if block_type == IMG_BLOCK_TYPE:
 #            images_xy.append((x0, y0, x1, y1))
 #    return images_xy
-
-BUCKET_NAME = os.environ["BUCKET_NAME"]
 
 def extract_paragraphs(block_l):
     paragraph_bbox_l = []
@@ -123,7 +133,6 @@ def prepare_table_data(table_dim_l, image):
 
 # Debugging
 def save_bboximages(image, bucket, filename, suffix):
-    table_corners_key_prefix = os.environ["BBOX_IMAGES_KEY_PREFIX"]
     base_filename = os.path.splitext(filename)[0]
     key = f"{table_corners_key_prefix}{base_filename}_{suffix}.jpg"
     print(f'temp: key={key}')
@@ -138,7 +147,6 @@ def save_masked_image(image, bucket, filename):
     # Convert the binary data to a bytes object
     image_b = encoded_img.tobytes()
 
-    table_masked_key_prefix = os.environ["MASKED_IMAGES_KEY_PREFIX"]
     base_filename = os.path.splitext(filename)[0]
     key = f"{table_masked_key_prefix}{base_filename}_masked.jpg"
     print(f'mask: key={key}')
@@ -253,7 +261,6 @@ def process_img(image, image_lres):
 
 def save_docdata(bucket, filename, docdata):
     # Save the docdata to S3
-    target_key_prefix = os.environ["TARGET_KEY_PREFIX"]
     base_filename = os.path.splitext(filename)[0]
     json_key = f"{target_key_prefix}{base_filename}.json"
     print(f'text_key={json_key}')
@@ -278,7 +285,6 @@ def delete_message(record):
 
 # Debugging
 def save_table_corner_files(bucket, filename, filename_lres, output, output_lres):
-    table_corners_key_prefix = os.environ["TABLE_CORNERS_KEY_PREFIX"]
     base_filename = os.path.splitext(filename)[0]
     key = f"{table_corners_key_prefix}{base_filename}_corners.jpg"
     print(f'corner: key={key}')
@@ -288,7 +294,8 @@ def save_table_corner_files(bucket, filename, filename_lres, output, output_lres
     s3_client.put_object(Bucket=bucket, Key=key_lres, Body=output_lres)
 
 def docdb_operations(docdata: json):
-    pass
+    client.create_db_instance(DBInstanceIdentifier=db_name)
+    client.create_collection(DBInstanceIdentifier=db_name, CollectionName=collection_name)
 
 def lambda_handler(event, context):
     # Extract the records from the SQS event

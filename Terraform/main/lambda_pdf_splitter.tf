@@ -113,9 +113,9 @@ resource "aws_lambda_permission" "pdf_splitter" {
 }
 
 
-resource "aws_s3_bucket_notification" "pdf_splitter_s3_bucket_notification" {
-  bucket = "datavid-pdfconverter"
-  #bucket     = data.aws_s3_bucket.datavid-pdfconverter.id
+resource "aws_s3_bucket_notification" "pdf_splitter" {
+  #bucket = "datavid-pdfconverter"
+  bucket     = data.aws_s3_bucket.datavid-pdfconverter.id
   depends_on = [aws_lambda_function.pdf_splitter]
 
   lambda_function {

@@ -69,16 +69,17 @@ variable "AWS_ACCOUNT_ID" {
 #
 #}
 #
-variable "public_subnet_numbers" {
-  type = map(number)
 
-  description = "Map of AZ to a number that should be used for public subnets"
-
-  default = {
-    "us-east-2a" = 1
-    "us-east-2b" = 2
-  }
-}
+#variable "public_subnet_numbers" {
+#  type = map(number)
+#
+#  description = "Map of AZ to a number that should be used for public subnets"
+#
+#  default = {
+#    "us-east-2a" = 1
+#    "us-east-2b" = 2
+#  }
+#}
 
 #variable "private_subnet_numbers" {
 #  type = map(number)
@@ -90,11 +91,11 @@ variable "public_subnet_numbers" {
 #  }
 #}
 
-#variable "availability_zone" {
-#    type    = string
-#    default = "us-east-2a"
-#}
-#
+variable "availability_zone" {
+    type    = string
+    default = "us-east-2a"
+}
+
 #variable "availability_zone_names" {
 #    type    = list(string)
 #    default = ["us-east-2a", "us-east-2b"]
@@ -121,35 +122,51 @@ variable "vpc_cidr" {
   default     = "10.18.0.0/16"
 }
 
-variable "subnet_cidr" {
+variable "subnet_cidr_public" {
   type        = string
   description = "The IP range to use for the VPC"
-  default     = "10.18.0.0/20"
+  default     = "10.18.0.0/24"
 }
 
-variable "server_name" {
+variable "subnet_cidr_private" {
+  type        = string
+  description = "The IP range to use for the VPC"
+  default     = "10.18.1.0/24"
+}
+
+variable "tunnelling_server_name" {
   type    = string
   default = "datavid-tunneling-server"
 }
 
-variable "docdb_instance_class_name" {
+variable "tunnelling_server_ip" {
   type    = string
-  default = "db.t3.medium"
+  default = "10.18.0.101"
 }
 
-variable "docdb_cluster_username" {
-  type = string
+variable "demo_server_ip" {
+    type    = string
+    default = "3.12.15.223"
 }
 
-variable "docdb_cluster_password" {
-  type = string
-}
-
-variable "docdb_cluster_id" {
-  type    = string
-  default = "docdb-cluster-demo"
-}
-
+#variable "docdb_cluster_username" {
+#  type = string
+#}
+#
+#variable "docdb_cluster_password" {
+#  type = string
+#}
+#
+#variable "docdb_cluster_public_id" {
+#  type    = string
+#  default = "docdb-cluster-demo"
+#}
+#
+#variable "docdb_cluster_private_id" {
+#  type    = string
+#  default = "docdb-cluster-lambda"
+#}
+#
 variable "lambda_name_pdf_splitter" {
   type    = string
   default = "pdf_splitter"
@@ -158,4 +175,24 @@ variable "lambda_name_pdf_splitter" {
 variable "lambda_name_page_extractor" {
   type    = string
   default = "page_extractor"
+}
+
+variable "DOCDB_DB_NAME" {
+    type    = string
+    default = "datavid_db"
+}
+
+variable "DOCDB_COLLECTION_NAME" {
+    type    = string
+    default = "pdf_table"
+}
+
+variable "docdb_sg" {
+  type    = string
+  default = "docdb_sg"
+}
+
+variable "private_subnet_name" {
+  type    = string
+  default = "private_subnet"
 }
