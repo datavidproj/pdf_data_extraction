@@ -297,8 +297,8 @@ def save_table_corner_files(bucket, filename, filename_lres, output, output_lres
     s3_client.put_object(Bucket=bucket, Key=key_lres, Body=output_lres)
 
 def docdb_operations(docdata: json):
-    client.create_db_instance(DBInstanceIdentifier=db_name)
-    client.create_collection(DBInstanceIdentifier=db_name, CollectionName=collection_name)
+    docdb_client.create_db_instance(DBInstanceIdentifier=db_name)
+    docdb_client.create_collection(DBInstanceIdentifier=db_name, CollectionName=collection_name)
 
 def lambda_handler(event, context):
     # Extract the records from the SQS event
