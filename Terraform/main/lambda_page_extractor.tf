@@ -69,6 +69,9 @@ resource "aws_security_group" "page_extractor" {
 #data "aws_iam_policy" "lambda_sqs_full_access_role_policy" {
 #  name = "AmazonSQSFullAccess"
 #}
+data "aws_iam_policy" "lambda_rds_full_access_role_policy" {
+  name = "AmazonRDSFullAccess"
+}
 
 #data "aws_subnet" "private" {
 #   filter {
@@ -130,6 +133,7 @@ resource "aws_iam_role" "page_extractor" {
   managed_policy_arns = [
     data.aws_iam_policy.lambda_basic_execution_role_policy.arn,
     data.aws_iam_policy.lambda_s3_full_access_role_policy.arn
+    data.aws_iam_policy.lambda_dms_full_access_role_policy.arn
 #    data.aws_iam_policy.lambda_sqs_full_access_role_policy.arn
 #    aws_iam_policy.lambda_policy.arn
   ]
