@@ -1,0 +1,33 @@
+version: 0.2
+
+env:
+  secrets-manager:
+     # key: secret-id:json-key:version-stage:version-id
+     AWS_SECRET_ACCESS_KEY: arn:aws:secretsmanager:us-east-2:093487613626:secret:user/datavid/secret_access_key-Xuo9LZ:secret_access_key
+     DOCDB_CLUSTER_PASSWORD: arn:aws:secretsmanager:us-east-2:093487613626:secret:dev/docdb/password-oc0PMC:docdb_cluster_password
+phases:
+  install:
+    #If you use the Ubuntu standard image 2.0 or later, you must specify runtime-versions.
+    #If you specify runtime-versions and use an image other than Ubuntu standard image 2.0, the build fails.
+    runtime-versions:
+      docker: latest
+    commands:
+      # Install dependencies
+      - yum update -y
+      - yum install -y git unzip curl
+      # - command
+  pre_build:
+    commands:
+    # - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - export TF_VAR_docdb_cluster_password=$DOCDB_CLUSTER_PASSWORD
+      # - command
+  build:
+    commands:
+       - echo $AWS_SECRET_ACCESS_KEY
+      # Clone repository
+       - git clone https://github.com/datavidproj/pdf_data_extraction.git
+       - cd pdf_data_extraction/lambda_projects/page_extractor
+       - docker build -t $TF_VAR_repo_name_page_extractor --build-arg BUCKET_NAME=$TF_VAR_bucket_name --build-arg AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID --build-arg AWS_REGION=$AWS_DEFAULT_REGION --build-arg TARGET_IMG_KEY_PREFIX=$TF_VAR_target_img_key_prefix --build-arg TARGET_KEY_PREFIX=$TF_VAR_target_key_prefix --build-arg BBOX_IMAGES_KEY_PREFIX=$TF_VAR_bbox_images_key_prefix --build-arg MASKED_IMAGES_KEY_PREFIX=$TF_VAR_masked_images_key_prefix --build-arg TABLE_CORNERS_KEY_PREFIX=$TF_VAR_table_corners_key_prefix --build-arg RES_HIGH=$RES_HIGH --build-arg RES_LOW=$RES_LOW --build-arg BATCH_SIZE=$TF_VAR_batch_size --build-arg DOCDB_DB_NAME=$DOCDB_DB_NAME --build-arg DOCDB_COLLECTION_NAME=$DOCDB_COLLECTION_NAME .
+       - docker tag page_extractor:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$TF_VAR_repo_name_page_extractor:latest
+       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$TF_VAR_repo_name_page_extractor:latest
