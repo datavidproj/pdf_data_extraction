@@ -132,12 +132,11 @@ resource "aws_iam_role" "page_extractor" {
   name_prefix = "LambdaPageExtractorRole-"
   managed_policy_arns = [
     data.aws_iam_policy.lambda_basic_execution_role_policy.arn,
-    data.aws_iam_policy.lambda_s3_full_access_role_policy.arn
-    data.aws_iam_policy.lambda_dms_full_access_role_policy.arn
+    data.aws_iam_policy.lambda_s3_full_access_role_policy.arn,
+    data.aws_iam_policy.lambda_rds_full_access_role_policy.arn
 #    data.aws_iam_policy.lambda_sqs_full_access_role_policy.arn
 #    aws_iam_policy.lambda_policy.arn
   ]
-
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
