@@ -73,7 +73,8 @@ def get_documentdb_endpoint(cluster_name):
 
 def connect_to_documentdb(host, port, username, password, db_name):
     # Set the path to the certificate file
-    ca_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "rds-combined-ca-bundle.pem")
+#    ca_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "rds-combined-ca-bundle.pem")
+    ca_file_path = "./rds-combined-ca-bundle.pem"
 
     # Set up the MongoClient with SSL options
     client = pymongo.MongoClient(
