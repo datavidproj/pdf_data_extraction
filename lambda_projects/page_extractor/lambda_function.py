@@ -21,8 +21,8 @@ db_name = os.environ.get("DOCDB_DB_NAME")
 collection_name = os.environ.get("DOCDB_COLLECTION_NAME")
 docdb_instance_class_name=os.environ.get("DOCDB_INSTANCE_CLASS_NAME")
 docdb_cluster_id=os.environ.get("DOCDB_CLUSTER_ID")
-docdb_username=os.environ,get("DOCDB_CLUSTER_USERNAME")
-docdb_password=os.environ,get("DOCDB_CLUSTER_PASSWORD")
+docdb_username=os.environ.get("DOCDB_CLUSTER_USERNAME")
+docdb_password=os.environ.get("DOCDB_CLUSTER_PASSWORD")
 #bucket_name = os.environ.get("BUCKET_NAME")
 
 #endpoint_id = "vpce-017159da4524c0a1e"
