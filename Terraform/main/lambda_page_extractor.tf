@@ -34,9 +34,28 @@ resource "aws_lambda_function" "page_extractor" {
     }
   }
   vpc_config {
-    security_group_ids = [data.aws_security_group.docdb_sg.id]
+    security_group_ids = [data.aws_security_group.page_extractor.id]
     subnet_ids         = [data.aws_subnet.private.id]
 #    subnet_ids         = values(aws_subnet.public)[*].id
+  }
+}
+
+resource "aws_security_group" "page_extractor" {
+  name = "page_extractor_sg"
+  vpc_id      = aws_vpc.my_vpc.id
+
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
