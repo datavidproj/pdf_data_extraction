@@ -18,6 +18,8 @@ target_key_prefix = os.environ.get("TARGET_KEY_PREFIX")
 table_corners_key_prefix = os.environ.get("TABLE_CORNERS_KEY_PREFIX")
 db_name = os.environ.get("DOCDB_DB_NAME")
 collection_name = os.environ.get("DOCDB_COLLECTION_NAME")
+docdb_instance_class_name=os.environ.get("DOCDB_INSTANCE_CLASS_NAME")
+docdb_cluster_id=os.environ.get("DOCDB_CLUSTER_ID")
 #bucket_name = os.environ.get("BUCKET_NAME")
 
 #endpoint_id = "vpce-017159da4524c0a1e"
@@ -297,7 +299,9 @@ def save_table_corner_files(bucket, filename, filename_lres, output, output_lres
     s3_client.put_object(Bucket=bucket, Key=key_lres, Body=output_lres)
 
 def docdb_operations(docdata: json):
-    docdb_client.create_db_instance(DBInstanceIdentifier=db_name)
+#    docdb_client.create_db_instance(DBInstanceIdentifier=db_name)
+    docdb_client.create_db_instance(DBInstanceIdentifier=db_name, DBClusterIdentifier=docdb_cluster_id, DBInstanceClass=docdb_instance_class_name, Engine='docdb')
+
     docdb_client.create_collection(DBInstanceIdentifier=db_name, CollectionName=collection_name)
 
 def lambda_handler(event, context):
