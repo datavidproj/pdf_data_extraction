@@ -8,6 +8,7 @@ import cv2
 import numpy as np
 import pytesseract
 import copy
+import pymongo
 
 region = os.environ.get('AWS_REGION')
 aws_access_key = os.environ.get('AWS_ACCESS_KEY')
@@ -20,6 +21,8 @@ db_name = os.environ.get("DOCDB_DB_NAME")
 collection_name = os.environ.get("DOCDB_COLLECTION_NAME")
 docdb_instance_class_name=os.environ.get("DOCDB_INSTANCE_CLASS_NAME")
 docdb_cluster_id=os.environ.get("DOCDB_CLUSTER_ID")
+docdb_username=os.environ,get("DOCDB_CLUSTER_USERNAME")
+docdb_password=os.environ,get("DOCDB_CLUSTER_PASSWORD")
 #bucket_name = os.environ.get("BUCKET_NAME")
 
 #endpoint_id = "vpce-017159da4524c0a1e"
@@ -31,6 +34,10 @@ s3_client = boto3.client('s3')
 sqs_client = boto3.client('sqs')
 docdb_client = boto3.client('docdb', region_name=region, aws_access_key_id=aws_access_key,
                       aws_secret_access_key=aws_secret_access_key)
+
+#docdb_client = pymongo.MongoClient(f"mongodb+srv://{docdb_username}:{docdb_password}@docdb-cluster-demo.cluster-cnlqc9m8opvy.us-east-2.docdb.amazonaws.com/test?retryWrites=true&w=majority")
+    db = client["mydatabase"]
+    collection = db["mycollection"]
 
 TEXT_BLOCK_TYPE = 0
 IMG_BLOCK_TYPE = 1
@@ -300,9 +307,20 @@ def save_table_corner_files(bucket, filename, filename_lres, output, output_lres
 
 def docdb_operations(docdata: json):
 #    docdb_client.create_db_instance(DBInstanceIdentifier=db_name)
-    docdb_client.create_db_instance(DBInstanceIdentifier=db_name, DBClusterIdentifier=docdb_cluster_id, DBInstanceClass=docdb_instance_class_name, Engine='docdb')
+    response = docdb_client.describe_db_clusters(DBClusterIdentifier=docdb_cluster_id)
 
-    docdb_client.create_collection(DBInstanceIdentifier=db_name, CollectionName=collection_name)
+    # Get the endpoint and port for the primary instance
+    endpoint = response['DBClusters'][0]['Endpoint']
+    port = response['DBClusters'][0]['Port']
+
+    client = pymongo.MongoClient('mongodb://%s:%s' % (endpoint, port))
+#    docdb_client.create_db_instance(DBInstanceIdentifier=db_name, DBClusterIdentifier=docdb_cluster_id, DBInstanceClass=docdb_instance_class_name, Engine='docdb')
+
+#    docdb_client.create_collection(DBInstanceIdentifier=db_name, CollectionName=collection_name)
+    db =  client[db_name]
+    collection = db[collection_name]
+    result = collection.insert_one(docdata)
+    print("create collection successful")
 
 def lambda_handler(event, context):
     # Extract the records from the SQS event
