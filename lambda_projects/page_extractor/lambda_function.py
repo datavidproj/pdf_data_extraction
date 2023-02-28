@@ -50,6 +50,47 @@ IMG_BLOCK_TYPE = 1
 #            images_xy.append((x0, y0, x1, y1))
 #    return images_xy
 
+def get_documentdb_endpoint(cluster_name):
+    # Create a DocumentDB client object
+    client = boto3.client("docdb")
+
+    # Get a list of all DocumentDB clusters
+    response = client.describe_db_clusters()
+
+    # Find the cluster with the specified name
+    cluster = None
+    for db_cluster in response["DBClusters"]:
+        if db_cluster["DBClusterIdentifier"] == cluster_name:
+            cluster = db_cluster
+            break
+
+    # If the cluster was not found, raise an exception
+    if cluster is None:
+        raise Exception("DocumentDB cluster not found: {}".format(cluster_name))
+
+    # Return the cluster endpoint URL
+    return cluster["Endpoint"]
+
+def connect_to_documentdb(host, port, username, password, db_name):
+    # Set the path to the certificate file
+    ca_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "rds-combined-ca-bundle.pem")
+
+    # Set up the MongoClient with SSL options
+    client = pymongo.MongoClient(
+        host=host,
+        port=port,
+        username=username,
+        password=password,
+        ssl=True,
+        ssl_ca_certs=ca_file_path
+    )
+
+    # Get the specified database
+    db = client[db_name]
+
+    # Return the database object
+    return db
+
 def extract_paragraphs(block_l):
     paragraph_bbox_l = []
     for block in block_l:
@@ -307,17 +348,25 @@ def save_table_corner_files(bucket, filename, filename_lres, output, output_lres
 
 def docdb_operations(docdata: json):
 #    docdb_client.create_db_instance(DBInstanceIdentifier=db_name)
-    response = docdb_client.describe_db_clusters(DBClusterIdentifier=docdb_cluster_id)
+    # Get the DocumentDB connection details from environment variables
+#    host = os.environ["DOCUMENTDB_HOST"]
+
+    endpoint = get_documentdb_endpoint(cluster_name)
+
+    # Connect to the DocumentDB cluster
+    db = connect_to_documentdb(endpoint, 27017, docdb_username, docdb_password, db_name)
+
+#    response = docdb_client.describe_db_clusters(DBClusterIdentifier=docdb_cluster_id)
 
     # Get the endpoint and port for the primary instance
-    endpoint = response['DBClusters'][0]['Endpoint']
-    port = response['DBClusters'][0]['Port']
+#    endpoint = response['DBClusters'][0]['Endpoint']
+#    port = response['DBClusters'][0]['Port']
 
-    client = pymongo.MongoClient('mongodb://%s:%s' % (endpoint, port))
+#    client = pymongo.MongoClient('mongodb://%s:%s' % (endpoint, port))
 #    docdb_client.create_db_instance(DBInstanceIdentifier=db_name, DBClusterIdentifier=docdb_cluster_id, DBInstanceClass=docdb_instance_class_name, Engine='docdb')
 
 #    docdb_client.create_collection(DBInstanceIdentifier=db_name, CollectionName=collection_name)
-    db =  client[db_name]
+#    db =  client[db_name]
     collection = db[collection_name]
     result = collection.insert_one(docdata)
     print("create collection successful")
