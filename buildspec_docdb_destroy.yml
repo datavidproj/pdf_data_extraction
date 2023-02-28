@@ -1,0 +1,34 @@
+version: 0.2
+
+env:
+  secrets-manager:
+     # key: secret-id:json-key:version-stage:version-id
+     AWS_SECRET_ACCESS_KEY: arn:aws:secretsmanager:us-east-2:093487613626:secret:user/datavid/secret_access_key-Xuo9LZ:secret_access_key
+     DOCDB_CLUSTER_PASSWORD: arn:aws:secretsmanager:us-east-2:093487613626:secret:dev/docdb/password-oc0PMC:docdb_cluster_password
+phases:
+  install:
+    #If you use the Ubuntu standard image 2.0 or later, you must specify runtime-versions.
+    #If you specify runtime-versions and use an image other than Ubuntu standard image 2.0, the build fails.
+    commands:
+      - yum install -y git unzip curl
+      # Install Terraform
+      - yum install -y yum-utils shadow-utils
+      - sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+      - sudo yum -y install terraform
+  pre_build:
+    commands:
+      - export TF_VAR_docdb_cluster_password=$DOCDB_CLUSTER_PASSWORD
+      # - command
+  build:
+    commands:
+      - echo $AWS_SECRET_ACCESS_KEY
+      # Clone repository
+      - git clone https://github.com/datavidproj/pdf_data_extraction.git
+      - cd pdf_data_extraction/Terraform/docdb
+      # Initialize Terraform and install plugins
+      - terraform init
+      - terraform refresh
+      - terraform plan
+      # Apply Terraform changes
+      - terraform destroy -auto-approve
+      #- terraform apply -destroy -auto-approve
