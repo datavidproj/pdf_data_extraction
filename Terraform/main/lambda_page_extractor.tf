@@ -34,7 +34,7 @@ resource "aws_lambda_function" "page_extractor" {
     }
   }
   vpc_config {
-    security_group_ids = [data.aws_security_group.page_extractor.id]
+    security_group_ids = [aws_security_group.page_extractor.id]
     subnet_ids         = [data.aws_subnet.private.id]
 #    subnet_ids         = values(aws_subnet.public)[*].id
   }
