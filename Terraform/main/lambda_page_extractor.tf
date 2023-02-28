@@ -42,7 +42,7 @@ resource "aws_lambda_function" "page_extractor" {
 
 resource "aws_security_group" "page_extractor" {
   name = "page_extractor_sg"
-  vpc_id      = aws_vpc.my_vpc.id
+  vpc_id      = data.aws_vpc.datavid-pdf-extractor.id
 
   ingress {
     from_port   = 0
