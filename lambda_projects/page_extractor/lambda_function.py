@@ -36,8 +36,8 @@ docdb_client = boto3.client('docdb', region_name=region, aws_access_key_id=aws_a
                       aws_secret_access_key=aws_secret_access_key)
 
 #docdb_client = pymongo.MongoClient(f"mongodb+srv://{docdb_username}:{docdb_password}@docdb-cluster-demo.cluster-cnlqc9m8opvy.us-east-2.docdb.amazonaws.com/test?retryWrites=true&w=majority")
-    db = client["mydatabase"]
-    collection = db["mycollection"]
+#    db = client["mydatabase"]
+#    collection = db["mycollection"]
 
 TEXT_BLOCK_TYPE = 0
 IMG_BLOCK_TYPE = 1
