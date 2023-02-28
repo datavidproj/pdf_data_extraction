@@ -351,7 +351,7 @@ def docdb_operations(docdata: json):
     # Get the DocumentDB connection details from environment variables
 #    host = os.environ["DOCUMENTDB_HOST"]
 
-    endpoint = get_documentdb_endpoint(cluster_name)
+    endpoint = get_documentdb_endpoint(docdb_cluster_id)
 
     # Connect to the DocumentDB cluster
     db = connect_to_documentdb(endpoint, 27017, docdb_username, docdb_password, db_name)
