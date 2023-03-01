@@ -11,7 +11,7 @@ RUN pip install --upgrade pip && \
     pip install -r requirements.txt && \
     pip install pytesseract && \
     pip install boto3 && \
-    pip install pymongo
+    pip install --upgrade pymongo
 
 ARG TARGET_KEY_PREFIX
 ARG TARGET_IMG_KEY_PREFIX
