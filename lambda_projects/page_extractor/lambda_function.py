@@ -9,6 +9,7 @@ import numpy as np
 import pytesseract
 import copy
 import pymongo
+import ssl
 
 region = os.environ.get('AWS_REGION')
 aws_access_key = os.environ.get('AWS_ACCESS_KEY')
@@ -78,6 +79,8 @@ def connect_to_documentdb(host, port, username, password, db_name):
 
     print(pymongo.__version__)
 
+    ssl_context = ssl.create_default_context(cafile=ca_file_path)
+
     # Set up the MongoClient with SSL options
     client = pymongo.MongoClient(
         host=host,
@@ -85,7 +88,8 @@ def connect_to_documentdb(host, port, username, password, db_name):
         username=username,
         password=password,
         ssl=True,
-        ssl_ca_certs=ca_file_path
+        ssl_context=ssl_context
+#        ssl_ca_certs=ca_file_path
     )
 
     # Get the specified database
