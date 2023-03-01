@@ -85,7 +85,7 @@ def connect_to_documentdb(host, port, username, password, db_name):
         username=username,
         password=password,
         ssl=True,
-        ssl_crlfile=ca_file_path
+        ssl_ca_certs=ca_file_path
     )
 
     # Get the specified database
