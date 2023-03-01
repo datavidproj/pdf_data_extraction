@@ -76,6 +76,8 @@ def connect_to_documentdb(host, port, username, password, db_name):
 #    ca_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "rds-combined-ca-bundle.pem")
     ca_file_path = "./rds-combined-ca-bundle.pem"
 
+    print(pymongo.__version__)
+
     # Set up the MongoClient with SSL options
     client = pymongo.MongoClient(
         host=host,
